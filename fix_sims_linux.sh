@@ -857,24 +857,55 @@ while true; do
 
     case $opcion in
         1)
-            echo -e "\n${P}\e[1;33m[Iniciando instalación / organización de DLCs...]\e[0m"
+            echo -e "\n${P}\e[1;33m[Iniciando instalación / organización inteligente de DLCs...]\e[0m"
             mkdir -p "$SIMS_DIR"
             
             if [ -d "$DLC_SOURCE" ]; then
                 mapfile -t ARCHIVOS_COMPRIMIDOS < <(find "$DLC_SOURCE" -maxdepth 1 -type f \( -iname "*.zip" -o -iname "*.rar" -o -iname "*.7z" \) | sort)
                 
                 if [ ${#ARCHIVOS_COMPRIMIDOS[@]} -gt 0 ]; then
-                    echo -e "${P}\e[1;36mSe detectaron ${#ARCHIVOS_COMPRIMIDOS[@]} archivos comprimidos en la carpeta.\e[0m"
-                    echo -e "${P}Descomprimiendo cada paquete en $SIMS_DIR..."
+                    echo -e "${P}\e[1;36mSe detectaron ${#ARCHIVOS_COMPRIMIDOS[@]} paquetes en la carpeta de descargas.\e[0m"
+                    echo -e "${P}Analizando e instalando packs faltantes en: \e[36m$SIMS_DIR\e[0m\n"
                     
+                    local extraidos=0
+                    local omitidos=0
+                    local errores=0
+
                     for i in "${!ARCHIVOS_COMPRIMIDOS[@]}"; do
                         arch="${ARCHIVOS_COMPRIMIDOS[$i]}"
-                        echo -e "${P}[$((i+1))/${#ARCHIVOS_COMPRIMIDOS[@]}] Extrayendo: \e[1;37m$(basename "$arch")\e[0m..."
-                        7z x "$arch" -o"$SIMS_DIR" -y > /dev/null
+                        base_arch="$(basename "$arch")"
+                        
+                        # Extraer código (EP01, GP05, SP12, FP01)
+                        arch_code=$(echo "$base_arch" | grep -o -E '(EP[0-9]{2}|GP[0-9]{2}|SP[0-9]{2}|FP[0-9]{2})' | head -n1 | tr '[:lower:]' '[:upper:]')
+                        
+                        # 1. Si ya está instalado en el juego, omitir para no sobreescribir innecesariamente
+                        if [ -n "$arch_code" ] && [ -d "$SIMS_DIR/$arch_code" ] && [ "$(ls -A "$SIMS_DIR/$arch_code" 2>/dev/null)" ]; then
+                            echo -e "${P}[$((i+1))/${#ARCHIVOS_COMPRIMIDOS[@]}] \e[1;32m[✔ Ya instalado]\e[0m  \e[2;37m$base_arch\e[0m"
+                            ((omitidos++))
+                            continue
+                        fi
+
+                        # 2. Verificar integridad del archivo antes de descomprimir
+                        if ! 7z t "$arch" > /dev/null 2>&1; then
+                            echo -e "${P}[$((i+1))/${#ARCHIVOS_COMPRIMIDOS[@]}] \e[1;31m[❌ Archivo dañado/incompleto]\e[0m \e[1;37m$base_arch\e[0m (omitido)"
+                            ((errores++))
+                            continue
+                        fi
+
+                        # 3. Descomprimir pack faltante de forma limpia
+                        echo -e "${P}[$((i+1))/${#ARCHIVOS_COMPRIMIDOS[@]}] \e[1;36m[📦 Extrayendo]\e[0m    \e[1;37m$base_arch\e[0m..."
+                        7z x "$arch" -o"$SIMS_DIR" -y > /dev/null 2>&1
+                        ((extraidos++))
                     done
+
+                    echo -e "\n${P}\e[1;36m────────────────────────────────────────────────────────────────\e[0m"
+                    echo -e "${P}\e[1;32mResumen de instalación:\e[0m"
+                    echo -e "${P}  • Packs nuevos instalados:      \e[1;32m$extraidos\e[0m"
+                    echo -e "${P}  • Packs ya presentes (omitidos): \e[1;33m$omitidos\e[0m"
+                    [ "$errores" -gt 0 ] && echo -e "${P}  • Archivos dañados/incompletos:  \e[1;31m$errores\e[0m"
                 fi
 
-                echo -e "${P}Copiando y organizando carpetas y archivos directos..."
+                # Copiar carpetas sueltas directas si las hay
                 for item in "$DLC_SOURCE"/*; do
                     [ -e "$item" ] || continue
                     case "$item" in
@@ -884,7 +915,7 @@ while true; do
                 done
 
                 arreglar_estructura_dlcs "$SIMS_DIR"
-                echo -e "\n${P}\e[1;32m¡Instalación y organización de DLCs completada!\e[0m"
+                echo -e "\n${P}\e[1;32m¡Instalación y organización completada con éxito!\e[0m"
                 
             elif [ -f "$DLC_SOURCE" ]; then
                 if ! command -v 7z &> /dev/null; then
@@ -894,7 +925,7 @@ while true; do
                     continue
                 fi
                 echo -e "${P}Modo Archivo único detectado. Descomprimiendo en $SIMS_DIR..."
-                7z x "$DLC_SOURCE" -o"$SIMS_DIR" -y
+                7z x "$DLC_SOURCE" -o"$SIMS_DIR" -y > /dev/null 2>&1
                 arreglar_estructura_dlcs "$SIMS_DIR"
                 echo -e "\n${P}\e[1;32m¡Extracción y organización terminada!\e[0m"
                 
@@ -905,7 +936,7 @@ while true; do
             fi
 
             COUNT=$(ls -d "$SIMS_DIR"/[EGDFS]* 2>/dev/null | grep -E '/(EP|GP|SP|FP)[0-9]+' | wc -l)
-            echo -e "\n${P}\e[1;32mTotal de carpetas de DLCs listas en el juego: $COUNT\e[0m"
+            echo -e "${P}\e[1;32mTotal de carpetas de DLCs listas en el juego: $COUNT\e[0m"
             echo -ne "\n${P}Presiona Enter para continuar..."
             read -r
             ;;
