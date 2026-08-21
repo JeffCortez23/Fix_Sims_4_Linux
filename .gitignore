@@ -1,0 +1,9 @@
+# Unlocker binaries & configs (proporcionados por anadius / usuario)
+*.dll
+*.ini
+ea_app/
+*.zip
+*.rar
+*.7z
+*.log
+.DS_Store
