@@ -89,3 +89,23 @@ Si quieres abrir el gestor desde cualquier lugar sin tener que buscar la carpeta
 
 🎉 ¡Listo! A partir de ahora, solo escribe **`fixsims`** en cualquier terminal y el menú aparecerá al instante.
 
+---
+
+### 📜 Changelog / Historial de Versiones
+
+#### 🚀 Versión 2.0
+* **Compatibilidad con nuevas versiones de EA App**: Detección y localización dinámica de ejecutables de la EA App en subcarpetas versionadas (`13.xxx/EA Desktop`, `compatibility32/`, etc.).
+* **Inyección de Wine DllOverrides**: Registro automático de `"version"="native,builtin"` en el registro de Proton/Wine (`user.reg`) para garantizar la carga del Unlocker.
+* **Extracción de DLCs por lotes (Batch)**: Detección y descompresión secuencial automática de carpetas con múltiples archivos comprimidos (`.zip`, `.rar`, `.7z`) como las descargas en lote de Telegram o navegador.
+* **Aplanador automático de carpetas**: Reorganización automática de directorios anidados (`all in one/`, `The Sims 4/`, `DLCs/`) para que las expansiones (`EPxx`, `GPxx`, `SPxx`) queden directamente en la raíz del juego.
+* **Soporte universal ampliado**: Detección automática para Steam Nativo, Flatpak, Snap y SteamOS / Steam Deck (incluyendo bibliotecas en tarjetas MicroSD y discos externos).
+* **Fix de procesos mejorado**: Cierre forzado ampliado para matar procesos colgados (`TS4_x64.exe`, `Link2EA.exe`, `EADesktop.exe`, `steam-runtime-reaper`).
+
+#### 📦 Versión 1.0
+* Primera versión funcional del gestor para Linux.
+* Inyección básica de `version.dll` en la ruta clásica de EA Desktop.
+* Instalación de DLCs desde archivo comprimido individual o carpeta.
+* Función para destrabar Steam matando procesos huérfanos.
+* Sistema de autoguardado de rutas en `~/.config/sims4_gestor.conf`.
+
+
