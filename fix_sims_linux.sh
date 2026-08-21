@@ -991,6 +991,10 @@ while true; do
                         mkdir -p "$TARGET_CONF"
                         cp "$UNLOCKER_INI" "$TARGET_CONF/config.ini" 2>/dev/null
                         cp "$UNLOCKER_GAME_INI" "$TARGET_CONF/g_LOS SIMS 4.ini" 2>/dev/null
+                        cp "$UNLOCKER_GAME_INI" "$TARGET_CONF/g_Los Sims 4.ini" 2>/dev/null
+                        cp "$UNLOCKER_GAME_INI" "$TARGET_CONF/g_The Sims 4.ini" 2>/dev/null
+                        cp "$UNLOCKER_GAME_INI" "$TARGET_CONF/g_THE SIMS 4.ini" 2>/dev/null
+                        sed -i 's/replaceDLCs=0/replaceDLCs=1/' "$TARGET_CONF/config.ini" 2>/dev/null
                     fi
                 done
             fi
