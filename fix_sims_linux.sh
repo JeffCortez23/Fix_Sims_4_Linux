@@ -14,7 +14,7 @@ ICON_PATH="$HOME/.local/share/icons/fix-sims-4.svg"
 VERSION="2.1"
 
 # --- UTILIDADES DE CENTRADO Y ESTILO TUI ---
-WIDTH=70
+WIDTH=64
 
 obtener_padding() {
     local cols
@@ -236,7 +236,7 @@ detectar_entornos() {
                     
                     nombre="Steam ($path)"
                     if [ -d "$path/steamapps/common/The Sims 4" ]; then
-                        nombre="Steam (Los Sims 4 encontrado aquí)"
+                        nombre="Steam (Los Sims 4 detectado)"
                     fi
                     
                     if [[ ! " ${DETECTED_ENTORNOS_LIBS[*]} " =~ " ${path} " ]]; then
@@ -297,10 +297,10 @@ configurar_rutas() {
     clear
     local P
     P=$(obtener_padding)
-    echo ""
-    echo -e "${P}\e[1;36m╭────────────────────────────────────────────────────────────────────╮\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m            \e[1;33m⚙️  CONFIGURACIÓN DE RUTAS / LANZADOR\e[0m                    \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m╰────────────────────────────────────────────────────────────────────╯\e[0m"
+    echo -e "\n\n"
+    echo -e "${P}\e[1;36m╭──────────────────────────────────────────────────────────────╮\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m            \e[1;33m⚙️  CONFIGURACIÓN DE RUTAS / LANZADOR\e[0m              \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m╰──────────────────────────────────────────────────────────────╯\e[0m\n"
     echo -e "${P}Buscando instalaciones de Steam, Lutris, Bottles y Heroic..."
     detectar_entornos
 
@@ -428,10 +428,10 @@ descargar_unlocker_auto() {
     clear
     local P
     P=$(obtener_padding)
-    echo ""
-    echo -e "${P}\e[1;36m╭────────────────────────────────────────────────────────────────────╮\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m          \e[1;32m🌐 DESCARGA AUTOMÁTICA DEL EA DLC UNLOCKER\e[0m                \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m╰────────────────────────────────────────────────────────────────────╯\e[0m"
+    echo -e "\n\n"
+    echo -e "${P}\e[1;36m╭──────────────────────────────────────────────────────────────╮\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m          \e[1;32m🌐 DESCARGA AUTOMÁTICA DEL EA DLC UNLOCKER\e[0m          \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m╰──────────────────────────────────────────────────────────────╯\e[0m\n"
     echo -e "${P}Conectando con el servidor oficial (Tiesas Archives / Anadius)..."
     mkdir -p "$UNLOCKER_STORE/ea_app"
     
@@ -487,37 +487,36 @@ diagnosticar_dlcs() {
     clear
     local P
     P=$(obtener_padding)
-    echo ""
-    echo -e "${P}\e[1;36m╭────────────────────────────────────────────────────────────────────╮\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m        \e[1;33m🔍 GUÍA DE CÓDIGOS & DIAGNÓSTICO DE DLCS - LOS SIMS 4\e[0m       \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m├────────────────────────────────────────────────────────────────────┤\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m  \e[1;37mJuego:\e[0m   \e[36m${SIMS_DIR:0:55}\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m  \e[1;37mPrefijo:\e[0m \e[36m${PREFIX:0:55}\e[0m"
-    echo -e "${P}\e[1;36m├────────────────────────────────────────────────────────────────────┤\e[0m"
+    echo -e "\n\n"
+    echo -e "${P}\e[1;36m╭──────────────────────────────────────────────────────────────╮\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m        \e[1;33m🔍 GUÍA DE CÓDIGOS & DIAGNÓSTICO DE DLCS (TS4)\e[0m        \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m╰──────────────────────────────────────────────────────────────╯\e[0m\n"
+    echo -e "${P}  \e[1;37m• Juego:\e[0m   \e[36m$SIMS_DIR\e[0m"
+    echo -e "${P}  \e[1;37m• Prefijo:\e[0m \e[36m$PREFIX\e[0m\n"
 
     # 1. Chequeo del Unlocker en EA App & Wine
+    echo -e "${P}\e[1;34m[Estado de Activación e Inyección EA App]\e[0m"
     local dll_count
     dll_count=$(find "$PREFIX/drive_c" -type f -name "version.dll" 2>/dev/null | grep -i "Electronic Arts" | wc -l)
     if [ "$dll_count" -gt 0 ]; then
-        echo -e "${P}\e[1;36m│\e[0m  • Inyección version.dll:     \e[1;32m[✔ INYECTADO] ($dll_count ubicaciones)\e[0m"
+        echo -e "${P}  • Inyección version.dll:     \e[1;32m[✔ INYECTADO] ($dll_count ubicaciones)\e[0m"
     else
-        echo -e "${P}\e[1;36m│\e[0m  • Inyección version.dll:     \e[1;31m[❌ NO DETECTADO]\e[0m"
+        echo -e "${P}  • Inyección version.dll:     \e[1;31m[❌ NO DETECTADO]\e[0m"
     fi
 
     if [ -f "$USER_REG" ] && grep -q '"version"="native,builtin"' "$USER_REG"; then
-        echo -e "${P}\e[1;36m│\e[0m  • Wine DllOverrides:         \e[1;32m[✔ ACTIVO ('version'='native,builtin')]\e[0m"
+        echo -e "${P}  • Wine DllOverrides:         \e[1;32m[✔ ACTIVO ('version'='native,builtin')]\e[0m"
     else
-        echo -e "${P}\e[1;36m│\e[0m  • Wine DllOverrides:         \e[1;31m[❌ FALTA CONFIGURAR]\e[0m"
+        echo -e "${P}  • Wine DllOverrides:         \e[1;31m[❌ FALTA CONFIGURAR]\e[0m"
     fi
 
     local conf_count
     conf_count=$(find "$PREFIX/drive_c/users" -type f -name "g_LOS SIMS 4.ini" 2>/dev/null | wc -l)
     if [ "$conf_count" -gt 0 ]; then
-        echo -e "${P}\e[1;36m│\e[0m  • Configuración AppData:     \e[1;32m[✔ INSTALADA]\e[0m"
+        echo -e "${P}  • Configuración AppData:     \e[1;32m[✔ INSTALADA]\e[0m"
     else
-        echo -e "${P}\e[1;36m│\e[0m  • Configuración AppData:     \e[1;31m[❌ FALTA CONFIG.INI]\e[0m"
+        echo -e "${P}  • Configuración AppData:     \e[1;31m[❌ FALTA CONFIG.INI]\e[0m"
     fi
-    echo -e "${P}\e[1;36m╰────────────────────────────────────────────────────────────────────╯\e[0m"
 
     local total_instalados=0
     local total_faltantes=0
@@ -580,12 +579,12 @@ diagnosticar_dlcs() {
 
     local total_general=$(( ${#LISTA_EP[@]} + ${#LISTA_GP[@]} + ${#LISTA_SP_ACC[@]} + ${#LISTA_KITS[@]} ))
 
-    echo -e "\n${P}\e[1;36m╭────────────────────────────────────────────────────────────────────╮\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m  \e[1;32m📊 RESUMEN GENERAL DE DLCS:\e[0m                                       \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m    • Total en Guía Oficial:  \e[1;37m$total_general packs\e[0m                                \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m    • Instalados en tu disco: \e[1;32m$total_instalados packs\e[0m                                \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m    • Faltantes por instalar: \e[1;31m$total_faltantes packs\e[0m                                \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m╰────────────────────────────────────────────────────────────────────╯\e[0m"
+    echo -e "\n${P}\e[1;36m────────────────────────────────────────────────────────────────\e[0m"
+    echo -e "${P}\e[1;32m📊 RESUMEN GENERAL DE DLCS:\e[0m"
+    echo -e "${P}  • Total en Guía Oficial:  \e[1;37m$total_general packs\e[0m"
+    echo -e "${P}  • Instalados en tu disco: \e[1;32m$total_instalados packs\e[0m"
+    echo -e "${P}  • Faltantes por instalar: \e[1;31m$total_faltantes packs\e[0m"
+    echo -e "${P}\e[1;36m────────────────────────────────────────────────────────────────\e[0m"
     echo -ne "\n${P}Presiona Enter para volver al menú..."
     read -r
 }
@@ -595,10 +594,10 @@ limpiar_cache_juego() {
     clear
     local P
     P=$(obtener_padding)
-    echo ""
-    echo -e "${P}\e[1;36m╭────────────────────────────────────────────────────────────────────╮\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m          \e[1;33m🧹 LIMPIADOR DE CACHÉ DEL JUEGO (LOS SIMS 4)\e[0m               \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m╰────────────────────────────────────────────────────────────────────╯\e[0m"
+    echo -e "\n\n"
+    echo -e "${P}\e[1;36m╭──────────────────────────────────────────────────────────────╮\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m          \e[1;33m🧹 LIMPIADOR DE CACHÉ DEL JUEGO (LOS SIMS 4)\e[0m        \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m╰──────────────────────────────────────────────────────────────╯\e[0m\n"
     echo -e "${P}Buscando carpetas de datos de usuario..."
 
     CANDIDATOS_DOCS=(
@@ -649,10 +648,10 @@ crear_acceso_directo() {
     clear
     local P
     P=$(obtener_padding)
-    echo ""
-    echo -e "${P}\e[1;36m╭────────────────────────────────────────────────────────────────────╮\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m         \e[1;32m🖥️  CREADOR DE ACCESO DIRECTO DE ESCRITORIO\e[0m                 \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m╰────────────────────────────────────────────────────────────────────╯\e[0m"
+    echo -e "\n\n"
+    echo -e "${P}\e[1;36m╭──────────────────────────────────────────────────────────────╮\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m         \e[1;32m🖥️  CREADOR DE ACCESO DIRECTO DE ESCRITORIO\e[0m          \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m╰──────────────────────────────────────────────────────────────╯\e[0m\n"
     
     mkdir -p "$HOME/.local/share/icons"
     cat <<EOF_SVG > "$ICON_PATH"
@@ -710,33 +709,31 @@ mostrar_acerca_de() {
     clear
     local P
     P=$(obtener_padding)
-    echo ""
-    echo -e "${P}\e[1;36m╭────────────────────────────────────────────────────────────────────╮\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m            \e[1;32m💎 FIX SIMS 4 LINUX (EDICIÓN COMUNITARIA)\e[0m               \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m├────────────────────────────────────────────────────────────────────┤\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m  \e[1;37mVersión:\e[0m        \e[1;32mv$VERSION\e[0m                                           \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m  \e[1;37mAutor:\e[0m          \e[1;36mJeff Cortez\e[0m                                         \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m  \e[1;37mRepositorio:\e[0m    \e[1;34mhttps://github.com/JeffCortez23/Fix_Sims_4_Linux\e[0m     \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m  \e[1;37mCompatibilidad:\e[0m \e[1;35mSteam, Steam Deck, Lutris, Bottles, Heroic, Wine\e[0m     \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m├────────────────────────────────────────────────────────────────────┤\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m  \e[1;33m📜 HISTORIAL DE CAMBIOS (CHANGELOG):\e[0m                              \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m                                                                    \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m  \e[1;32m[v2.1] - Diagnóstico Maestro, Caché, TUI & Multi-Lanzador\e[0m          \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m    • 🔍 \e[1;37mGuía Oficial de DLCs:\e[0m Todos los EP (1-21), GP (1-12), SP/Kits \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m    • 🧹 \e[1;37mLimpiador de Caché:\e[0m localthumbcache para arreglar cargas inf. \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m    • 🌐 \e[1;37mAuto-descarga Unlocker:\e[0m con verificación de hash SHA-256.     \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m    • 🖥️  \e[1;37mAcceso Directo:\e[0m .desktop e icono temático Plumbob.           \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m    • 🎮 \e[1;37mSoporte Multi-Lanzador:\e[0m Lutris, Bottles, Heroic Games y Wine. \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m    • 🎨 \e[1;37mInterfaz TUI:\e[0m Diseño centrado, estético y con bordes suaves.  \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m                                                                    \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m  \e[1;32m[v2.0] - Soporte Nueva EA App & Extracción en Lote\e[0m                 \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m    • Inyección dinámica de version.dll en subcarpetas de EA Desktop. \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m    • Inyección de DllOverrides en Wine (user.reg).                   \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m    • Descompresión por lotes para múltiples archivos comprimidos.    \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m                                                                    \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m  \e[1;32m[v1.0] - Lanzamiento Inicial\e[0m                                       \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m    • Instalación básica y asesino de procesos colgados.              \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m╰────────────────────────────────────────────────────────────────────╯\e[0m"
+    echo -e "\n\n"
+    echo -e "${P}\e[1;36m╭──────────────────────────────────────────────────────────────╮\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m            \e[1;32m💎 FIX SIMS 4 LINUX (EDICIÓN COMUNITARIA)\e[0m         \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m       \e[2;37mSteam • Steam Deck • Lutris • Bottles • Heroic\e[0m         \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m╰──────────────────────────────────────────────────────────────╯\e[0m\n"
+    echo -e "${P}  \e[1;37m• Versión:\e[0m        \e[1;32mv$VERSION\e[0m"
+    echo -e "${P}  \e[1;37m• Autor:\e[0m          \e[1;36mJeff Cortez\e[0m"
+    echo -e "${P}  \e[1;37m• Repositorio:\e[0m    \e[1;34mhttps://github.com/JeffCortez23/Fix_Sims_4_Linux\e[0m"
+    echo -e "${P}  \e[1;37m• Compatibilidad:\e[0m \e[1;35mSteam, Steam Deck, Lutris, Bottles, Heroic, Wine\e[0m"
+    echo -e "\n${P}\e[1;36m────────────────────────────────────────────────────────────────\e[0m"
+    echo -e "${P}\e[1;33m📜 HISTORIAL DE CAMBIOS (CHANGELOG):\e[0m\n"
+    echo -e "${P}  \e[1;32m[v2.1] - Diagnóstico Maestro, Caché, TUI & Multi-Lanzador\e[0m"
+    echo -e "${P}    • 🔍 \e[1;37mGuía Oficial de DLCs:\e[0m Todos los EP (1-21), GP (1-12), SP y Kits."
+    echo -e "${P}    • 🧹 \e[1;37mLimpiador de Caché:\e[0m localthumbcache para cargas infinitas."
+    echo -e "${P}    • 🌐 \e[1;37mAuto-descarga Unlocker:\e[0m con verificación de hash SHA-256."
+    echo -e "${P}    • 🖥️  \e[1;37mAcceso Directo:\e[0m .desktop e icono temático Plumbob."
+    echo -e "${P}    • 🎮 \e[1;37mSoporte Multi-Lanzador:\e[0m Lutris, Bottles, Heroic Games y Wine."
+    echo -e "${P}    • 🎨 \e[1;37mInterfaz TUI:\e[0m Diseño centrado, estético y moderno.\n"
+    echo -e "${P}  \e[1;32m[v2.0] - Soporte Nueva EA App & Extracción en Lote\e[0m"
+    echo -e "${P}    • Inyección dinámica de version.dll en subcarpetas de EA Desktop."
+    echo -e "${P}    • Inyección de DllOverrides en Wine (user.reg)."
+    echo -e "${P}    • Descompresión por lotes para múltiples archivos comprimidos.\n"
+    echo -e "${P}  \e[1;32m[v1.0] - Lanzamiento Inicial\e[0m"
+    echo -e "${P}    • Instalación básica y asesino de procesos colgados."
+    echo -e "\n${P}\e[1;36m────────────────────────────────────────────────────────────────\e[0m"
     echo -ne "\n${P}Presiona Enter para volver al menú principal..."
     read -r
 }
@@ -745,24 +742,25 @@ mostrar_acerca_de() {
 while true; do
     clear
     P=$(obtener_padding)
+    echo -e "\n\n"
+    echo -e "${P}\e[1;36m╭──────────────────────────────────────────────────────────────╮\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m         \e[1;32m💎 GESTOR DE LOS SIMS 4 (LINUX EDITION) v$VERSION\e[0m         \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m       \e[2;37mSteam • Steam Deck • Lutris • Bottles • Heroic\e[0m         \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m╰──────────────────────────────────────────────────────────────╯\e[0m"
     echo ""
-    echo -e "${P}\e[1;36m╭────────────────────────────────────────────────────────────────────╮\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m              \e[1;32m💎 GESTOR DE LOS SIMS 4 (LINUX EDITION) v$VERSION\e[0m        \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m            \e[2;37mSteam • Steam Deck • Lutris • Bottles • Heroic\e[0m          \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m├────────────────────────────────────────────────────────────────────┤\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m  \e[1;33m[1]\e[0m 📦 Instalar / Mover DLCs al juego (ZIP, RAR, Lotes)          \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m  \e[1;33m[2]\e[0m 🔓 Reactivar DLCs (Inyección EA App + Wine Override)         \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m  \e[1;33m[3]\e[0m 🔍 Diagnóstico de DLCs e Inyección (Health Check)            \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m  \e[1;33m[4]\e[0m 🧹 Limpiar Caché del Juego (Solución Carga Infinita)         \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m  \e[1;33m[5]\e[0m 🌐 Descargar / Actualizar EA DLC Unlocker (Automático)       \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m  \e[1;33m[6]\e[0m 🖥️  Crear Acceso Directo (.desktop / Steam Deck)              \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m  \e[1;33m[7]\e[0m 🔪 Forzar cierre de procesos colgados (Fix Sims/EA)          \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m  \e[1;33m[8]\e[0m ⚙️  Reconfigurar rutas del script / Lanzador                   \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m  \e[1;33m[9]\e[0m ℹ️  Acerca de & Changelog                                      \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m  \e[1;31m[0]\e[0m 🚪 Salir                                                     \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m╰────────────────────────────────────────────────────────────────────╯\e[0m"
+    echo -e "${P}  \e[1;33m[1]\e[0m 📦  \e[1;37mInstalar / Mover DLCs al juego\e[0m \e[2;37m(ZIP, RAR, Lotes)\e[0m"
+    echo -e "${P}  \e[1;33m[2]\e[0m 🔓  \e[1;37mReactivar DLCs\e[0m \e[2;37m(Inyección EA App + Wine Override)\e[0m"
+    echo -e "${P}  \e[1;33m[3]\e[0m 🔍  \e[1;37mDiagnóstico de DLCs e Inyección\e[0m \e[2;37m(Health Check)\e[0m"
+    echo -e "${P}  \e[1;33m[4]\e[0m 🧹  \e[1;37mLimpiar Caché del Juego\e[0m \e[2;37m(Solución Carga Infinita)\e[0m"
+    echo -e "${P}  \e[1;33m[5]\e[0m 🌐  \e[1;37mDescargar / Actualizar EA DLC Unlocker\e[0m \e[2;37m(Auto)\e[0m"
+    echo -e "${P}  \e[1;33m[6]\e[0m 🖥️   \e[1;37mCrear Acceso Directo\e[0m \e[2;37m(.desktop / Steam Deck)\e[0m"
+    echo -e "${P}  \e[1;33m[7]\e[0m 🔪  \e[1;37mForzar cierre de procesos colgados\e[0m \e[2;37m(Fix Sims/EA)\e[0m"
+    echo -e "${P}  \e[1;33m[8]\e[0m ⚙️   \e[1;37mReconfigurar rutas del script / Lanzador\e[0m"
+    echo -e "${P}  \e[1;33m[9]\e[0m ℹ️   \e[1;37mAcerca de & Changelog\e[0m"
+    echo -e "${P}  \e[1;31m[0]\e[0m 🚪  \e[1;37mSalir\e[0m"
     echo ""
-    echo -ne "${P}\e[1;37m👉 Elige una opción (0-9):\e[0m "
+    echo -e "${P}\e[1;36m────────────────────────────────────────────────────────────────\e[0m"
+    echo -ne "${P}\e[1;33m👉 Elige una opción (0-9):\e[0m "
     read -r opcion
 
     case $opcion in
@@ -885,9 +883,9 @@ while true; do
             rm -rf "$PREFIX/drive_c/users"/*/AppData/Local/EADesktop 2>/dev/null
             rm -rf "$PREFIX/drive_c/users"/*/AppData/Local/Origin 2>/dev/null
             
-            echo -e "\n${P}\e[1;32m╭────────────────────────────────────────────────────────────────────╮\e[0m"
-            echo -e "${P}\e[1;32m│\e[0m               \e[1;32m¡DLCS Y UNLOCKER ACTIVADOS CON ÉXITO!\e[0m                \e[1;32m│\e[0m"
-            echo -e "${P}\e[1;32m╰────────────────────────────────────────────────────────────────────╯\e[0m"
+            echo -e "\n${P}\e[1;32m────────────────────────────────────────────────────────────────\e[0m"
+            echo -e "${P}\e[1;32m               ¡DLCS Y UNLOCKER ACTIVADOS CON ÉXITO!            \e[0m"
+            echo -e "${P}\e[1;32m────────────────────────────────────────────────────────────────\e[0m"
             echo -e "${P}Ya puedes iniciar Los Sims 4 normalmente."
             echo -ne "\n${P}Presiona Enter para continuar..."
             read -r
@@ -941,9 +939,8 @@ while true; do
         0)
             clear
             P=$(obtener_padding)
-            echo ""
-            echo -e "${P}\e[1;32m💎 ¡Que disfrutes jugando Los Sims 4 en Linux!\e[0m"
-            echo ""
+            echo -e "\n\n"
+            echo -e "${P}\e[1;32m💎 ¡Que disfrutes jugando Los Sims 4 en Linux!\e[0m\n"
             exit 0
             ;;
             
