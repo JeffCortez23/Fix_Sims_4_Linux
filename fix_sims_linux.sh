@@ -38,150 +38,145 @@ HEROIC_PATHS=(
     "$HOME/.var/app/com.heroicgameslauncher.hgl/data/heroic/prefixes"
 )
 
-# --- MAPA MAESTRO DE TODOS LOS DLCS DISPONIBLES EN LOS SIMS 4 ---
+# --- BASE DE DATOS OFICIAL DE DLCS (LOS SIMS 4) ---
 obtener_nombre_dlc() {
     local code="$1"
     case "$code" in
         # Packs de Expansión (EP)
-        EP01) echo "¡A Trabajar! (Get to Work)" ;;
-        EP02) echo "¿Quedamos? (Get Together)" ;;
-        EP03) echo "Urbanitas (City Living)" ;;
-        EP04) echo "Perros y Gatos (Cats & Dogs)" ;;
-        EP05) echo "Y Las Cuatro Estaciones (Seasons)" ;;
-        EP06) echo "¡Rumbo a la Fama! (Get Famous)" ;;
-        EP07) echo "Vida Isleña (Island Living)" ;;
-        EP08) echo "Días de Universidad (Discover University)" ;;
-        EP09) echo "Vida Ecológica (Eco Lifestyle)" ;;
-        EP10) echo "Escapada en la Nieve (Snowy Escape)" ;;
-        EP11) echo "Vida en el Pueblo (Cottage Living)" ;;
-        EP12) echo "Años High School (High School Years)" ;;
-        EP13) echo "Creciendo en Familia (Growing Together)" ;;
-        EP14) echo "Rancho de Caballos (Horse Ranch)" ;;
-        EP15) echo "Se Alquila (For Rent)" ;;
-        EP16) echo "¡Viva el Amor! (Lovestruck)" ;;
-        EP17) echo "Vida y Más Allá (Life & Death)" ;;
-        EP18) echo "Pack de Expansión 18" ;;
-        EP19) echo "Pack de Expansión 19" ;;
-        EP20) echo "Pack de Expansión 20" ;;
-        EP21) echo "Pack de Expansión 21" ;;
+        EP01) echo "¡A Trabajar!" ;;
+        EP02) echo "¿Quedamos?" ;;
+        EP03) echo "Urbanitas" ;;
+        EP04) echo "Perros y Gatos" ;;
+        EP05) echo "Las 4 Estaciones" ;;
+        EP06) echo "¡Rumbo a la Fama!" ;;
+        EP07) echo "Vida Isleña" ;;
+        EP08) echo "Días de Universidad" ;;
+        EP09) echo "Vida Ecológica" ;;
+        EP10) echo "Escapada en la Nieve" ;;
+        EP11) echo "Vida en el Pueblo" ;;
+        EP12) echo "Años High School" ;;
+        EP13) echo "Creciendo en Familia" ;;
+        EP14) echo "Rancho de Caballos" ;;
+        EP15) echo "Se Alquila" ;;
+        EP16) echo "¡Viva el Amor!" ;;
+        EP17) echo "Vida y Más Allá" ;;
+        EP18) echo "Ocio y Negocio" ;;
+        EP19) echo "Naturaleza Encantada" ;;
+        EP20) echo "¡A la Aventura!" ;;
+        EP21) echo "Dinastías y Linajes" ;;
         
         # Packs de Contenido (GP)
-        GP01) echo "De Acampada (Outdoor Retreat)" ;;
-        GP02) echo "Día de Spa (Spa Day)" ;;
-        GP03) echo "Escapada Gourmet (Dine Out)" ;;
-        GP04) echo "Vampiros (Vampires)" ;;
-        GP05) echo "Papás y Mamás (Parenthood)" ;;
-        GP06) echo "Aventura en la Selva (Jungle Adventure)" ;;
+        GP01) echo "De Acampada" ;;
+        GP02) echo "Día de Spa" ;;
+        GP03) echo "Escapada Gourmet" ;;
+        GP04) echo "Vampiros" ;;
+        GP05) echo "Papás y Mamás" ;;
+        GP06) echo "Aventura en la Selva" ;;
         GP07) echo "StrangerVille" ;;
-        GP08) echo "Y el Reino de la Magia (Realm of Magic)" ;;
+        GP08) echo "El Reino de la Magia" ;;
         GP09) echo "Star Wars: Viaje a Batuu" ;;
-        GP10) echo "¡Sí, Quiero! (My Wedding Stories)" ;;
-        GP11) echo "Licántropos (Werewolves)" ;;
-        GP12) echo "Pack de Contenido 12" ;;
+        GP10) echo "Interiorismo" ;;
+        GP11) echo "¡Sí, Quiero!" ;;
+        GP12) echo "Licántropos" ;;
         
-        # Packs de Accesorios y Kits (SP)
-        SP01) echo "Fiesta Glamurosa (Luxury Party)" ;;
-        SP02) echo "Patio de Ensueño (Perfect Patio)" ;;
-        SP03) echo "Cocina Divina (Cool Kitchen)" ;;
-        SP04) echo "Escalofriante (Spooky)" ;;
-        SP05) echo "Noche de Cine (Movie Hangout)" ;;
-        SP06) echo "Jardín Romántico (Romantic Garden)" ;;
-        SP07) echo "Cuarto de Niños (Kids Room)" ;;
-        SP08) echo "Diversión en el Patio (Backyard)" ;;
-        SP09) echo "Glamour Vintage (Vintage Glamour)" ;;
-        SP10) echo "Noche de Bolos (Bowling Night)" ;;
-        SP11) echo "Fitness (Fitness)" ;;
-        SP12) echo "Infantes (Toddler)" ;;
-        SP13) echo "Día de Colada (Laundry Day)" ;;
-        SP14) echo "Mi Primera Mascota (My First Pet)" ;;
-        SP15) echo "Moschino (Moschino)" ;;
-        SP16) echo "Minicasas (Tiny Living)" ;;
-        SP17) echo "Portentos del Punto (Nifty Knitting)" ;;
-        SP18) echo "Fenómenos Paranormales (Paranormal)" ;;
-        SP20) echo "Zafarrancho de Limpieza (Kit)" ;;
-        SP21) echo "Cocina Campestre (Kit)" ;;
-        SP22) echo "Moda Retró (Kit)" ;;
-        SP23) echo "Oasis en el Desierto (Kit)" ;;
-        SP24) echo "Loft Industrial (Kit)" ;;
-        SP25) echo "Moda Masculina (Kit)" ;;
-        SP26) echo "Decoración Carnavalesca (Kit)" ;;
-        SP28) echo "Maximalismo (Kit)" ;;
-        SP29) echo "Noche Chic (Kit)" ;;
-        SP30) echo "Tiendita de Campaña (Kit)" ;;
-        SP31) echo "Primeros Pasos (Kit)" ;;
-        SP32) echo "Oasis en el Desierto (Kit)" ;;
-        SP33) echo "Pastel Pop (Kit)" ;;
-        SP34) echo "Desorden Cotidiano (Kit)" ;;
-        SP35) echo "Ropa Interior (Kit)" ;;
-        SP36) echo "Objetos de Baño (Kit)" ;;
-        SP37) echo "Invernadero Idílico (Kit)" ;;
-        SP38) echo "Tesoros del Sótano (Kit)" ;;
-        SP39) echo "Rincón de Lectura (Kit)" ;;
-        SP40) echo "Vuelta al Grunge (Kit)" ;;
-        SP41) echo "Piscina Junto a la Piscina (Kit)" ;;
-        SP42) echo "Chef de Casa (Stuff Pack)" ;;
-        SP43) echo "Lujo Nocturno (Kit)" ;;
-        SP44) echo "Creaciones de Cristal (Stuff Pack)" ;;
-        SP45) echo "Castillos Modernos (Kit)" ;;
-        SP46) echo "Gótico Urbano (Kit)" ;;
-        SP47) echo "Homenaje a la Rivera (Kit)" ;;
-        SP48) echo "Bistro Acogedor (Kit)" ;;
-        SP49) echo "Retiro en la Rivera (Kit)" ;;
-        SP50) echo "Habitación Infantil Encantadora (Kit)" ;;
-        SP51) echo "Estudio de Artista (Kit)" ;;
-        SP52) echo "Salón de Cuentos (Kit)" ;;
-        SP53) echo "Kit 53" ;;
-        SP54) echo "Kit 54" ;;
-        SP55) echo "Kit 55" ;;
-        SP56) echo "Kit 56" ;;
-        SP57) echo "Kit 57" ;;
-        SP58) echo "Kit 58" ;;
-        SP59) echo "Kit 59" ;;
-        SP60) echo "Kit 60" ;;
-        SP61) echo "Kit 61" ;;
-        SP62) echo "Kit 62" ;;
-        SP63) echo "Kit 63" ;;
-        SP64) echo "Kit 64" ;;
-        SP65) echo "Kit 65" ;;
-        SP66) echo "Kit 66" ;;
-        SP67) echo "Kit 67" ;;
-        SP68) echo "Kit 68" ;;
-        SP69) echo "Kit 69" ;;
-        SP70) echo "Kit 70" ;;
-        SP71) echo "Kit 71" ;;
-        SP72) echo "Kit 72" ;;
-        SP73) echo "Kit 73" ;;
-        SP74) echo "Kit 74" ;;
-        SP75) echo "Kit 75" ;;
-        SP76) echo "Kit 76" ;;
-        SP77) echo "Kit 77" ;;
-        SP78) echo "Kit 78" ;;
-        SP79) echo "Kit 79" ;;
-        SP80) echo "Kit 80" ;;
-        SP81) echo "Kit 81" ;;
-        SP82) echo "Kit 82" ;;
-        
-        # Festivos / Packs Gratuitos (FP)
-        FP01) echo "Pack Felices Fiestas (Holiday Celebration)" ;;
+        # Packs de Accesorios (SP)
+        SP01) echo "Fiesta Glamurosa" ;;
+        SP02) echo "Patio de Ensueño" ;;
+        SP03) echo "Cocina Divina" ;;
+        SP04) echo "Escalofriante" ;;
+        SP05) echo "Noche de Cine" ;;
+        SP06) echo "Jardín Romántico" ;;
+        SP07) echo "Cuarto de Niños" ;;
+        SP08) echo "Diversión en el Patio" ;;
+        SP09) echo "Glamour Vintage" ;;
+        SP10) echo "Noche de Bolos" ;;
+        SP11) echo "Fitness" ;;
+        SP12) echo "Infantes" ;;
+        SP13) echo "Día de Colada" ;;
+        SP14) echo "Mi Primera Mascota" ;;
+        SP15) echo "Moschino" ;;
+        SP16) echo "Minicasas" ;;
+        SP17) echo "Portentos del Punto" ;;
+        SP18) echo "Fenómenos Paranormales" ;;
+        SP46) echo "Chef de Casa" ;;
+        SP49) echo "Creaciones Cristalinas" ;;
+
+        # Kits (SP) & Festivos (FP)
+        FP01) echo "Felices Fiestas" ;;
+        SP20) echo "Moda Retro" ;;
+        SP21) echo "Cocina Campestre" ;;
+        SP22) echo "Zafarrancho de Limpieza" ;;
+        SP23) echo "Oasis en el Patio" ;;
+        SP24) echo "Fashion Street" ;;
+        SP25) echo "Loft Industrial" ;;
+        SP26) echo "Moda de Aeropuerto" ;;
+        SP28) echo "Moda Masculina Moderna" ;;
+        SP29) echo "Decoración Vegetal" ;;
+        SP30) echo "Colores de Carnaval" ;;
+        SP31) echo "Decoración Maximalista" ;;
+        SP32) echo "Noches Chic" ;;
+        SP33) echo "Minicampistas" ;;
+        SP34) echo "Moda Mini" ;;
+        SP35) echo "Oasis de Lujo" ;;
+        SP36) echo "Pastel Pop" ;;
+        SP37) echo "Desorden Decorativo" ;;
+        SP38) echo "Moda Íntima" ;;
+        SP39) echo "Objetos para el Baño" ;;
+        SP40) echo "Invernadero Idílico" ;;
+        SP41) echo "Tesoros del Sótano" ;;
+        SP42) echo "Vuelta al Grunge" ;;
+        SP43) echo "Rincón de Lectura" ;;
+        SP44) echo "¡Al Agua, Patos!" ;;
+        SP45) echo "Lujo Moderno" ;;
+        SP47) echo "Castillo con Clase" ;;
+        SP48) echo "Gusto Gótico" ;;
+        SP50) echo "Homenaje Urbano" ;;
+        SP51) echo "Decoración Festiva" ;;
+        SP52) echo "Retiro en la Riviera" ;;
+        SP53) echo "Bistró Acogedor" ;;
+        SP54) echo "Estudio de Arte" ;;
+        SP55) echo "Cuarto de Cuentos" ;;
+        SP56) echo "Fiesta de Pijamas" ;;
+        SP57) echo "Caprichos Kitsch" ;;
+        SP58) echo "Rincón Gamer" ;;
+        SP59) echo "Santuario Secreto" ;;
+        SP60) echo "Cuarto de Casanova" ;;
+        SP61) echo "Salón Sofisticado" ;;
+        SP62) echo "Elegancia Ejecutiva" ;;
+        SP63) echo "Baño Elegante" ;;
+        SP64) echo "Estilo Encantador" ;;
+        SP65) echo "Taller de Restauración" ;;
+        SP66) echo "Años Dorados" ;;
+        SP67) echo "Menaje de Cocina" ;;
+        SP68) echo "Casa de Bob Esponja" ;;
+        SP69) echo "Moda de Otoño" ;;
+        SP70) echo "Cuarto Infantil de Bob Esponja" ;;
+        SP71) echo "Recibidor Rural" ;;
+        SP72) echo "Maquillaje con Glamour" ;;
+        SP73) echo "Retiro Moderno" ;;
+        SP74) echo "De la Huerta a la Mesa" ;;
+        SP75) echo "Cuarto de las Maravillas" ;;
+        SP76) echo "Estilo de Cine Clásico" ;;
+        SP77) echo "Hora del Té" ;;
+        SP78) echo "Salón de Baile de Máscaras de LB" ;;
+        SP79) echo "Galas de Baile de Máscaras de LB" ;;
+        SP80) echo "Sala de Música" ;;
+        SP81) echo "Sueños Silvestres" ;;
+        SP82) echo "El Patio de mi Casa" ;;
         
         *) echo "Pack / Kit ($code)" ;;
     esac
 }
 
-# Lista maestra de todos los códigos de DLCs oficiales
-TODOS_LOS_DLCS=(
-    # Expansiones (17)
-    EP01 EP02 EP03 EP04 EP05 EP06 EP07 EP08 EP09 EP10 EP11 EP12 EP13 EP14 EP15 EP16 EP17
-    # Packs de Contenido (12)
-    GP01 GP02 GP03 GP04 GP05 GP06 GP07 GP08 GP09 GP10 GP11 GP12
-    # Festivos (1)
-    FP01
-    # Accesorios y Kits (78)
-    SP01 SP02 SP03 SP04 SP05 SP06 SP07 SP08 SP09 SP10 SP11 SP12 SP13 SP14 SP15 SP16 SP17 SP18
-    SP20 SP21 SP22 SP23 SP24 SP25 SP26 SP28 SP29 SP30 SP31 SP32 SP33 SP34 SP35 SP36 SP37 SP38
-    SP39 SP40 SP41 SP42 SP43 SP44 SP45 SP46 SP47 SP48 SP49 SP50 SP51 SP52 SP53 SP54 SP55 SP56
-    SP57 SP58 SP59 SP60 SP61 SP62 SP63 SP64 SP65 SP66 SP67 SP68 SP69 SP70 SP71 SP72 SP73 SP74
-    SP75 SP76 SP77 SP78 SP79 SP80 SP81 SP82
+# Lista maestra de códigos oficiales
+LISTA_EP=(EP01 EP02 EP03 EP04 EP05 EP06 EP07 EP08 EP09 EP10 EP11 EP12 EP13 EP14 EP15 EP16 EP17 EP18 EP19 EP20 EP21)
+LISTA_GP=(GP01 GP02 GP03 GP04 GP05 GP06 GP07 GP08 GP09 GP10 GP11 GP12)
+LISTA_SP_ACC=(SP01 SP02 SP03 SP04 SP05 SP06 SP07 SP08 SP09 SP10 SP11 SP12 SP13 SP14 SP15 SP16 SP17 SP18 SP46 SP49)
+LISTA_KITS=(
+    FP01 SP20 SP21 SP22 SP23 SP24 SP25 SP26 SP28 SP29 SP30 SP31 SP32 SP33 SP34 SP35 SP36 SP37 SP38
+    SP39 SP40 SP41 SP42 SP43 SP44 SP45 SP47 SP48 SP50 SP51 SP52 SP53 SP54 SP55 SP56 SP57 SP58
+    SP59 SP60 SP61 SP62 SP63 SP64 SP65 SP66 SP67 SP68 SP69 SP70 SP71 SP72 SP73 SP74 SP75 SP76
+    SP77 SP78 SP79 SP80 SP81 SP82
 )
 
 # --- FUNCIÓN DE BÚSQUEDA AUTOMÁTICA DE ARCHIVOS DEL UNLOCKER ---
@@ -458,17 +453,17 @@ except Exception as e:
     read -p "Presiona Enter para continuar..."
 }
 
-# --- INSPECTOR Y DIAGNÓSTICO DE DLCS (HEALTH CHECK COMPLETO) ---
+# --- INSPECTOR Y DIAGNÓSTICO DE DLCS (GUÍA MAESTRA COMPLETA) ---
 diagnosticar_dlcs() {
     clear
-    echo -e "\e[36m====================================================\e[0m"
-    echo -e "\e[1;33m    🔍 Inspector & Diagnóstico de DLCs (Health Check) \e[0m"
-    echo -e "\e[36m====================================================\e[0m"
+    echo -e "\e[36m======================================================================\e[0m"
+    echo -e "\e[1;33m       🔍 Guía de Códigos & Diagnóstico de DLCs - Los Sims 4          \e[0m"
+    echo -e "\e[36m======================================================================\e[0m"
     echo -e "Ruta del Juego: \e[36m$SIMS_DIR\e[0m"
     echo -e "Ruta del Prefijo: \e[36m$PREFIX\e[0m\n"
 
     # 1. Chequeo del Unlocker en EA App & Wine
-    echo -e "\e[1;34m[1. Estado de Activación e Inyección]\e[0m"
+    echo -e "\e[1;34m[1. Estado de Activación e Inyección EA App]\e[0m"
     local dll_count
     dll_count=$(find "$PREFIX/drive_c" -type f -name "version.dll" 2>/dev/null | grep -i "Electronic Arts" | wc -l)
     if [ "$dll_count" -gt 0 ]; then
@@ -491,16 +486,12 @@ diagnosticar_dlcs() {
         echo -e "  • Configuración de DLCs (AppData): \e[1;31m[❌ FALTA CONFIG.INI]\e[0m"
     fi
 
-    # 2. Comparar Catálogo Maestro vs Carpetas en Disco
-    echo -e "\n\e[1;34m[2. Estado de Todos los DLCs Oficiales (Instalados vs Faltantes)]\e[0m"
-    
-    local total_conocidos=${#TODOS_LOS_DLCS[@]}
     local total_instalados=0
     local total_faltantes=0
 
-    # Expansiones (EP)
-    echo -e "\n\e[1;33m--- Packs de Expansión (EP) ---\e[0m"
-    for code in EP01 EP02 EP03 EP04 EP05 EP06 EP07 EP08 EP09 EP10 EP11 EP12 EP13 EP14 EP15 EP16 EP17; do
+    # 2. Packs de Expansión (EP)
+    echo -e "\n\e[1;33m--- 📦 Packs de Expansión (EP) [Total: ${#LISTA_EP[@]}] ---\e[0m"
+    for code in "${LISTA_EP[@]}"; do
         nombre=$(obtener_nombre_dlc "$code")
         if [ -d "$SIMS_DIR/$code" ]; then
             size=$(du -sh "$SIMS_DIR/$code" 2>/dev/null | awk '{print $1}')
@@ -512,9 +503,9 @@ diagnosticar_dlcs() {
         fi
     done
 
-    # Packs de Contenido (GP)
-    echo -e "\n\e[1;33m--- Packs de Contenido (GP) ---\e[0m"
-    for code in GP01 GP02 GP03 GP04 GP05 GP06 GP07 GP08 GP09 GP10 GP11 GP12; do
+    # 3. Packs de Contenido (GP)
+    echo -e "\n\e[1;33m--- 🔮 Packs de Contenido (GP) [Total: ${#LISTA_GP[@]}] ---\e[0m"
+    for code in "${LISTA_GP[@]}"; do
         nombre=$(obtener_nombre_dlc "$code")
         if [ -d "$SIMS_DIR/$code" ]; then
             size=$(du -sh "$SIMS_DIR/$code" 2>/dev/null | awk '{print $1}')
@@ -526,9 +517,9 @@ diagnosticar_dlcs() {
         fi
     done
 
-    # Packs Gratuitos (FP)
-    echo -e "\n\e[1;33m--- Packs Gratuitos / Especiales (FP) ---\e[0m"
-    for code in FP01; do
+    # 4. Packs de Accesorios (SP)
+    echo -e "\n\e[1;33m--- 🛋️ Packs de Accesorios (SP) [Total: ${#LISTA_SP_ACC[@]}] ---\e[0m"
+    for code in "${LISTA_SP_ACC[@]}"; do
         nombre=$(obtener_nombre_dlc "$code")
         if [ -d "$SIMS_DIR/$code" ]; then
             size=$(du -sh "$SIMS_DIR/$code" 2>/dev/null | awk '{print $1}')
@@ -540,13 +531,9 @@ diagnosticar_dlcs() {
         fi
     done
 
-    # Accesorios y Kits (SP)
-    echo -e "\n\e[1;33m--- Packs de Accesorios & Kits (SP) ---\e[0m"
-    for code in SP01 SP02 SP03 SP04 SP05 SP06 SP07 SP08 SP09 SP10 SP11 SP12 SP13 SP14 SP15 SP16 SP17 SP18 \
-                SP20 SP21 SP22 SP23 SP24 SP25 SP26 SP28 SP29 SP30 SP31 SP32 SP33 SP34 SP35 SP36 SP37 SP38 \
-                SP39 SP40 SP41 SP42 SP43 SP44 SP45 SP46 SP47 SP48 SP49 SP50 SP51 SP52 SP53 SP54 SP55 SP56 \
-                SP57 SP58 SP59 SP60 SP61 SP62 SP63 SP64 SP65 SP66 SP67 SP68 SP69 SP70 SP71 SP72 SP73 SP74 \
-                SP75 SP76 SP77 SP78 SP79 SP80 SP81 SP82; do
+    # 5. Lista completa de Kits (SP) & Festivos (FP)
+    echo -e "\n\e[1;33m--- 🎨 Lista Completa de Kits (SP) & Festivos [Total: ${#LISTA_KITS[@]}] ---\e[0m"
+    for code in "${LISTA_KITS[@]}"; do
         nombre=$(obtener_nombre_dlc "$code")
         if [ -d "$SIMS_DIR/$code" ]; then
             size=$(du -sh "$SIMS_DIR/$code" 2>/dev/null | awk '{print $1}')
@@ -558,12 +545,14 @@ diagnosticar_dlcs() {
         fi
     done
 
-    echo -e "\n\e[36m====================================================\e[0m"
+    local total_general=$(( ${#LISTA_EP[@]} + ${#LISTA_GP[@]} + ${#LISTA_SP_ACC[@]} + ${#LISTA_KITS[@]} ))
+
+    echo -e "\n\e[36m======================================================================\e[0m"
     echo -e "\e[1;32m📊 RESUMEN GENERAL DE DLCs:\e[0m"
-    echo -e "  • Total en Catálogo Oficial: \e[1;37m$total_conocidos packs\e[0m"
-    echo -e "  • Instalados en tu disco:    \e[1;32m$total_instalados packs\e[0m"
-    echo -e "  • Faltantes por descargar:   \e[1;31m$total_faltantes packs\e[0m"
-    echo -e "\e[36m====================================================\e[0m"
+    echo -e "  • Total en Guía Oficial:  \e[1;37m$total_general packs\e[0m"
+    echo -e "  • Instalados en tu disco: \e[1;32m$total_instalados packs\e[0m"
+    echo -e "  • Faltantes por instalar: \e[1;31m$total_faltantes packs\e[0m"
+    echo -e "\e[36m======================================================================\e[0m"
     read -p "Presiona Enter para volver al menú..."
 }
 
@@ -684,7 +673,7 @@ mostrar_acerca_de() {
     echo -e "\e[1;33m📜 Historial de Cambios (Changelog):\e[0m\n"
     
     echo -e "\e[1;32m[v2.1] - Nivel Dios: Diagnóstico Maestro, Caché & Multi-Lanzador\e[0m"
-    echo -e "  • 🔍 \e[1;37mInspector Maestro de DLCs\e[0m: Compara el catálogo oficial completo contra tu disco (detecta instalados vs faltantes)."
+    echo -e "  • 🔍 \e[1;37mGuía Oficial de Códigos de DLCs\e[0m: Incluye todos los EP (1-21), GP (1-12), SP y Kits (1-82)."
     echo -e "  • 🧹 \e[1;37mLimpiador de Caché\e[0m (localthumbcache.package) para arreglar carga infinita."
     echo -e "  • 🌐 \e[1;37mAuto-descarga del Unlocker\e[0m con verificación de hash SHA-256."
     echo -e "  • 🖥️ \e[1;37mAcceso directo (.desktop)\e[0m con icono oficial Plumbob para menú y escritorio."
