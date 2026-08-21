@@ -190,6 +190,73 @@ LISTA_KITS=(
     SP77 SP78 SP79 SP80 SP81 SP82
 )
 
+# --- AUTO-DESCARGADOR DE UNLOCKER (CON HEADERS Y VERIFICACIÓN SHA-256) ---
+descargar_unlocker_auto() {
+    clear
+    local P
+    P=$(obtener_padding)
+    echo -e "\n\n"
+    echo -e "${P}\e[1;36m╭──────────────────────────────────────────────────────────────╮\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m          \e[1;32m🌐 DESCARGA AUTOMÁTICA DEL EA DLC UNLOCKER\e[0m          \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m╰──────────────────────────────────────────────────────────────╯\e[0m\n"
+    echo -e "${P}Conectando con el servidor oficial (Tiesas Archives / Anadius)..."
+    mkdir -p "$UNLOCKER_STORE/ea_app"
+    
+    python3 -c '
+import urllib.request, json, ssl, hashlib, os, sys, uuid
+from pathlib import Path
+
+store = Path(os.path.expanduser("~/.local/share/sims4_unlocker"))
+manifest_url = "https://access.tiesasarchives.uk/api/unlocker/manifest?channel=stable&platform=linux&architecture=x64"
+device_id = str(uuid.uuid4())
+headers = {
+    "X-Web-Jardinera-Device-Id": device_id,
+    "X-Web-Jardinera-Bootstrap-Version": "1.0.1",
+    "User-Agent": "WebJardineraSecureBootstrap/1.0.1"
+}
+
+try:
+    ctx = ssl.create_default_context()
+    req = urllib.request.Request(manifest_url, headers=headers)
+    with urllib.request.urlopen(req, context=ctx, timeout=15) as resp:
+        data = json.load(resp)
+    
+    version = data.get("version", "3.4.0")
+    print(f"  ✔ Publicación oficial encontrada: v{version}")
+    
+    for art in data.get("artifacts", []):
+        rel_path = art["path"]
+        dest = store / rel_path
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        print(f"  ⬇ Descargando: {rel_path}...")
+        
+        art_req = urllib.request.Request(art["downloadUrl"], headers=headers)
+        with urllib.request.urlopen(art_req, context=ctx, timeout=30) as d_resp:
+            content = d_resp.read()
+        
+        if hashlib.sha256(content).hexdigest().lower() != art["sha256"].lower():
+            raise ValueError(f"Error de integridad en {rel_path}")
+        
+        dest.write_bytes(content)
+        
+    print("\n  \033[1;32m✔ ¡Archivos del Unlocker descargados y verificados con éxito!\033[0m")
+except Exception as e:
+    print(f"\n  \033[1;31m❌ Error al descargar automáticamente: {e}\033[0m")
+    sys.exit(1)
+'
+
+    if [ $? -eq 0 ]; then
+        echo -e "\n${P}\e[1;32mArchivos guardados en:\e[0m $UNLOCKER_STORE"
+        UNLOCKER_DLL="$UNLOCKER_STORE/ea_app/version.dll"
+        UNLOCKER_INI="$UNLOCKER_STORE/config.ini"
+        UNLOCKER_GAME_INI="$UNLOCKER_STORE/g_LOS SIMS 4.ini"
+    else
+        echo -e "\n${P}\e[33mSi prefieres descargarlo de Telegram: https://t.me/c/3910223807/11\e[0m"
+    fi
+    echo -ne "\n${P}Presiona Enter para continuar..."
+    read -r
+}
+
 # --- BÚSQUEDA INTELIGENTE Y FLEXIBLE DE ARCHIVOS DEL UNLOCKER ---
 localizar_archivos_unlocker() {
     UNLOCKER_DLL=""
@@ -211,7 +278,7 @@ localizar_archivos_unlocker() {
         fi
     fi
 
-    # 2. Rutas candidatas automáticas (carpeta del script, subcarpetas, descargas, escritorio, pendrives montados)
+    # 2. Rutas candidatas automáticas (carpeta del script, subcarpetas, descargas, escritorio, almacén)
     CANDIDATOS=(
         "$SCRIPT_DIR"
         "$SCRIPT_DIR/EA DLC Unlocker v3.4"
@@ -279,7 +346,7 @@ localizar_archivos_unlocker() {
         fi
     fi
 
-    # Si presionó Enter, descargar automáticamente
+    # Si presionó Enter o no fue válida, descargar automáticamente
     descargar_unlocker_auto
     if [ -f "$UNLOCKER_STORE/ea_app/version.dll" ] && [ -f "$UNLOCKER_STORE/config.ini" ]; then
         UNLOCKER_DLL="$UNLOCKER_STORE/ea_app/version.dll"
@@ -504,65 +571,6 @@ arreglar_estructura_dlcs() {
             rmdir "$sub" 2>/dev/null || true
         fi
     done
-}
-
-# --- AUTO-DESCARGADOR DE UNLOCKER ---
-descargar_unlocker_auto() {
-    clear
-    local P
-    P=$(obtener_padding)
-    echo -e "\n\n"
-    echo -e "${P}\e[1;36m╭──────────────────────────────────────────────────────────────╮\e[0m"
-    echo -e "${P}\e[1;36m│\e[0m          \e[1;32m🌐 DESCARGA AUTOMÁTICA DEL EA DLC UNLOCKER\e[0m          \e[1;36m│\e[0m"
-    echo -e "${P}\e[1;36m╰──────────────────────────────────────────────────────────────╯\e[0m\n"
-    echo -e "${P}Conectando con el servidor oficial (Tiesas Archives / Anadius)..."
-    mkdir -p "$UNLOCKER_STORE/ea_app"
-    
-    python3 -c '
-import urllib.request, json, ssl, hashlib, os, sys
-from pathlib import Path
-
-store = Path(os.path.expanduser("~/.local/share/sims4_unlocker"))
-manifest_url = "https://access.tiesasarchives.uk/api/unlocker/manifest?channel=stable&platform=linux&architecture=x64"
-headers = {"User-Agent": "FixSimsLinux/2.1", "X-Web-Jardinera-Bootstrap-Version": "1.0.1"}
-
-try:
-    ctx = ssl.create_default_context()
-    req = urllib.request.Request(manifest_url, headers=headers)
-    with urllib.request.urlopen(req, context=ctx, timeout=15) as resp:
-        data = json.load(resp)
-    
-    version = data.get("version", "3.4.0")
-    print(f"  ✔ Publicación oficial encontrada: v{version}")
-    
-    for art in data.get("artifacts", []):
-        rel_path = art["path"]
-        dest = store / rel_path
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        print(f"  ⬇ Descargando: {rel_path}...")
-        
-        art_req = urllib.request.Request(art["downloadUrl"], headers=headers)
-        with urllib.request.urlopen(art_req, context=ctx, timeout=30) as d_resp:
-            content = d_resp.read()
-        
-        if hashlib.sha256(content).hexdigest().lower() != art["sha256"].lower():
-            raise ValueError(f"Error de integridad en {rel_path}")
-        
-        dest.write_bytes(content)
-        
-    print("\n  \033[1;32m✔ ¡Archivos del Unlocker descargados y verificados con éxito!\033[0m")
-except Exception as e:
-    print(f"\n  \033[1;31m❌ Error al descargar automáticamente: {e}\033[0m")
-    sys.exit(1)
-'
-
-    if [ $? -eq 0 ]; then
-        echo -e "\n${P}\e[1;32mArchivos guardados en:\e[0m $UNLOCKER_STORE"
-    else
-        echo -e "\n${P}\e[33mSi prefieres descargarlo de Telegram: https://t.me/c/3910223807/11\e[0m"
-    fi
-    echo -ne "\n${P}Presiona Enter para continuar..."
-    read -r
 }
 
 # --- INSPECTOR Y DIAGNÓSTICO DE DLCS ---
