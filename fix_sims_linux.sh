@@ -190,30 +190,103 @@ LISTA_KITS=(
     SP77 SP78 SP79 SP80 SP81 SP82
 )
 
-# --- BÚSQUEDA AUTOMÁTICA DE ARCHIVOS DEL UNLOCKER ---
+# --- BÚSQUEDA INTELIGENTE Y FLEXIBLE DE ARCHIVOS DEL UNLOCKER ---
 localizar_archivos_unlocker() {
     UNLOCKER_DLL=""
     UNLOCKER_INI=""
     UNLOCKER_GAME_INI=""
 
+    # 1. Comprobar si hay una ruta personalizada guardada en la configuración
+    if [ -n "$UNLOCKER_SOURCE" ] && [ -d "$UNLOCKER_SOURCE" ]; then
+        if [ -f "$UNLOCKER_SOURCE/ea_app/version.dll" ]; then
+            UNLOCKER_DLL="$UNLOCKER_SOURCE/ea_app/version.dll"
+        elif [ -f "$UNLOCKER_SOURCE/version.dll" ]; then
+            UNLOCKER_DLL="$UNLOCKER_SOURCE/version.dll"
+        fi
+        [ -f "$UNLOCKER_SOURCE/config.ini" ] && UNLOCKER_INI="$UNLOCKER_SOURCE/config.ini"
+        [ -f "$UNLOCKER_SOURCE/g_LOS SIMS 4.ini" ] && UNLOCKER_GAME_INI="$UNLOCKER_SOURCE/g_LOS SIMS 4.ini"
+        
+        if [ -n "$UNLOCKER_DLL" ] && [ -n "$UNLOCKER_INI" ] && [ -n "$UNLOCKER_GAME_INI" ]; then
+            return 0
+        fi
+    fi
+
+    # 2. Rutas candidatas automáticas (carpeta del script, almacén, descargas, escritorio)
     CANDIDATOS=(
-        "$UNLOCKER_STORE"
         "$SCRIPT_DIR"
-        "$SCRIPT_DIR/EA DLC Unlocker v3.3"
         "$SCRIPT_DIR/EA DLC Unlocker v3.4"
+        "$SCRIPT_DIR/EA DLC Unlocker v3.3"
+        "$UNLOCKER_STORE"
         "$HOME/Downloads/jardinera_extracted"
         "$HOME/Downloads/EA Abono WIN 3.3/EA DLC Unlocker v3.3"
         "$HOME/Downloads/Web Jardinera Unlocker - Linux"
+        "$HOME/Downloads"
+        "$HOME/Desktop"
+        "$HOME/Escritorio"
     )
 
     for dir in "${CANDIDATOS[@]}"; do
-        if [ -f "$dir/ea_app/version.dll" ] && [ -f "$dir/config.ini" ] && [ -f "$dir/g_LOS SIMS 4.ini" ]; then
-            UNLOCKER_DLL="$dir/ea_app/version.dll"
-            UNLOCKER_INI="$dir/config.ini"
-            UNLOCKER_GAME_INI="$dir/g_LOS SIMS 4.ini"
+        [ -d "$dir" ] || continue
+        local dll=""
+        local ini=""
+        local game_ini=""
+        
+        if [ -f "$dir/ea_app/version.dll" ]; then
+            dll="$dir/ea_app/version.dll"
+        elif [ -f "$dir/version.dll" ]; then
+            dll="$dir/version.dll"
+        fi
+        [ -f "$dir/config.ini" ] && ini="$dir/config.ini"
+        [ -f "$dir/g_LOS SIMS 4.ini" ] && game_ini="$dir/g_LOS SIMS 4.ini"
+
+        if [ -n "$dll" ] && [ -n "$ini" ] && [ -n "$game_ini" ]; then
+            UNLOCKER_DLL="$dll"
+            UNLOCKER_INI="$ini"
+            UNLOCKER_GAME_INI="$game_ini"
             return 0
         fi
     done
+
+    # 3. Si no se encontró en ninguna parte, solicitar ruta o descargar automáticamente
+    local P
+    P=$(obtener_padding)
+    echo -e "\n${P}\e[1;33m[Aviso: No se encontraron los archivos del Unlocker en rutas estándar]\e[0m"
+    echo -e "${P}\e[1;34m💡 PRO-TIP:\e[0m Arrastra aquí la carpeta donde guardas tu Unlocker"
+    echo -e "${P}o presiona \e[1;32m[Enter]\e[0m para descargarlos automáticamente ahora mismo."
+    echo -ne "${P}\e[1;37mRuta del Unlocker:\e[0m "
+    read -r custom_unlocker
+
+    custom_unlocker="${custom_unlocker//\'/}"
+    custom_unlocker="${custom_unlocker%"${custom_unlocker##*[![:space:]]}"}"
+
+    if [ -n "$custom_unlocker" ] && [ -d "$custom_unlocker" ]; then
+        if [ -f "$custom_unlocker/ea_app/version.dll" ]; then
+            UNLOCKER_DLL="$custom_unlocker/ea_app/version.dll"
+        elif [ -f "$custom_unlocker/version.dll" ]; then
+            UNLOCKER_DLL="$custom_unlocker/version.dll"
+        fi
+        [ -f "$custom_unlocker/config.ini" ] && UNLOCKER_INI="$custom_unlocker/config.ini"
+        [ -f "$custom_unlocker/g_LOS SIMS 4.ini" ] && UNLOCKER_GAME_INI="$custom_unlocker/g_LOS SIMS 4.ini"
+
+        if [ -n "$UNLOCKER_DLL" ] && [ -n "$UNLOCKER_INI" ] && [ -n "$UNLOCKER_GAME_INI" ]; then
+            UNLOCKER_SOURCE="$custom_unlocker"
+            sed -i '/UNLOCKER_SOURCE=/d' "$CONFIG_FILE" 2>/dev/null
+            echo "UNLOCKER_SOURCE=\"$UNLOCKER_SOURCE\"" >> "$CONFIG_FILE"
+            return 0
+        else
+            echo -e "\n${P}\e[31m❌ Esa carpeta no contiene los 3 archivos necesarios (version.dll, config.ini, g_LOS SIMS 4.ini).\e[0m"
+        fi
+    fi
+
+    # Si presionó Enter, descargar automáticamente
+    descargar_unlocker_auto
+    if [ -f "$UNLOCKER_STORE/ea_app/version.dll" ] && [ -f "$UNLOCKER_STORE/config.ini" ]; then
+        UNLOCKER_DLL="$UNLOCKER_STORE/ea_app/version.dll"
+        UNLOCKER_INI="$UNLOCKER_STORE/config.ini"
+        UNLOCKER_GAME_INI="$UNLOCKER_STORE/g_LOS SIMS 4.ini"
+        return 0
+    fi
+
     return 1
 }
 
@@ -346,6 +419,7 @@ configurar_rutas() {
 STEAM_LIBRARY="$STEAM_LIBRARY"
 STEAM_COMPATDATA="$STEAM_COMPATDATA"
 DLC_SOURCE="$DLC_SOURCE"
+UNLOCKER_SOURCE="$UNLOCKER_SOURCE"
 EOF
 
     echo -e "\n${P}\e[1;32m✔ ¡Configuración guardada con éxito en $CONFIG_FILE!\e[0m"
@@ -822,8 +896,7 @@ while true; do
             echo -e "\n${P}\e[1;34m[Arrancando inyección de DLCs Unlocker...]\e[0m"
             
             if ! localizar_archivos_unlocker; then
-                echo -e "\n${P}\e[31m¡Error! No se encontraron los archivos del Unlocker.\e[0m"
-                echo -e "${P}Usa la Opción 5 para descargarlos automáticamente con un solo clic."
+                echo -e "\n${P}\e[31m¡Error! No se pudieron obtener los archivos del Unlocker.\e[0m"
                 echo -ne "\n${P}Presiona Enter para continuar..."
                 read -r
                 continue
