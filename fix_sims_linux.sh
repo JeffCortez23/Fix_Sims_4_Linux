@@ -4,12 +4,14 @@
 #   Gestor de Los Sims 4 (Linux Edition) v2.1
 #   Soporta Steam, Steam Deck, Lutris, Bottles, Heroic & Wine
 #   Compatible con nuevas versiones de EA App
+#   Desarrollado por Jeff Cortez (github.com/JeffCortez23)
 # ==============================================================================
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 CONFIG_FILE="$HOME/.config/sims4_gestor.conf"
 UNLOCKER_STORE="$HOME/.local/share/sims4_unlocker"
 ICON_PATH="$HOME/.local/share/icons/fix-sims-4.svg"
+VERSION="2.1"
 
 # Lista de ubicaciones comunes de Steam
 STEAM_PATHS=(
@@ -355,7 +357,7 @@ arreglar_estructura_dlcs() {
     done
 }
 
-# --- FUNCIÓN 1: AUTO-DESCARGADOR DE UNLOCKER (JARDINERA) ---
+# --- AUTO-DESCARGADOR DE UNLOCKER (JARDINERA) ---
 descargar_unlocker_auto() {
     echo -e "\n\e[1;36m[Conectando con el servidor para descargar EA DLC Unlocker...]\e[0m"
     mkdir -p "$UNLOCKER_STORE/ea_app"
@@ -406,7 +408,7 @@ except Exception as e:
     read -p "Presiona Enter para continuar..."
 }
 
-# --- FUNCIÓN 2: INSPECTOR Y DIAGNÓSTICO DE DLCS (HEALTH CHECK) ---
+# --- INSPECTOR Y DIAGNÓSTICO DE DLCS (HEALTH CHECK) ---
 diagnosticar_dlcs() {
     clear
     echo -e "\e[36m====================================================\e[0m"
@@ -471,7 +473,7 @@ diagnosticar_dlcs() {
     read -p "Presiona Enter para volver al menú..."
 }
 
-# --- FUNCIÓN 3: LIMPIADOR DE CACHÉ DEL JUEGO ---
+# --- LIMPIADOR DE CACHÉ DEL JUEGO ---
 limpiar_cache_juego() {
     clear
     echo -e "\e[36m====================================================\e[0m"
@@ -503,7 +505,6 @@ limpiar_cache_juego() {
     for ts4_user in "${FOUND_DOCS[@]}"; do
         echo -e "\nLimpiando carpeta: \e[36m$ts4_user\e[0m"
         
-        # Eliminar archivos de caché seguros (NUNCA toca saves, Tray, Mods ni Options.ini)
         rm -f "$ts4_user/localthumbcache.package" 2>/dev/null && echo "  ✔ localthumbcache.package eliminado"
         rm -f "$ts4_user/avatarcache.package" 2>/dev/null && echo "  ✔ avatarcache.package eliminado"
         rm -f "$ts4_user/clientDB.package" 2>/dev/null && echo "  ✔ clientDB.package eliminado"
@@ -513,7 +514,6 @@ limpiar_cache_juego() {
         rm -rf "$ts4_user/lotcachedData"/* 2>/dev/null && echo "  ✔ Contenido de /lotcachedData/ purgado"
     done
 
-    # Limpiar caché de EA App también
     rm -rf "$PREFIX/drive_c/users"/*/AppData/Local/Electronic\ Arts/EA\ Desktop 2>/dev/null
     rm -rf "$PREFIX/drive_c/users"/*/AppData/Local/EADesktop 2>/dev/null
     rm -rf "$PREFIX/drive_c/users"/*/AppData/Local/Origin 2>/dev/null
@@ -522,7 +522,7 @@ limpiar_cache_juego() {
     read -p "Presiona Enter para continuar..."
 }
 
-# --- FUNCIÓN 4: CREADOR DE ACCESO DIRECTO (.DESKTOP) ---
+# --- CREADOR DE ACCESO DIRECTO (.DESKTOP) ---
 crear_acceso_directo() {
     echo -e "\n\e[1;36m[Creando Acceso Directo de Escritorio y Menú de Apps...]\e[0m"
     
@@ -576,11 +576,46 @@ EOF_DESK
     read -p "Presiona Enter para continuar..."
 }
 
+# --- SECCIÓN ACERCA DE & CHANGELOG ---
+mostrar_acerca_de() {
+    clear
+    echo -e "\e[36m====================================================\e[0m"
+    echo -e "\e[1;32m     💎 Fix Sims 4 Linux (Edición Comunitaria)      \e[0m"
+    echo -e "\e[36m====================================================\e[0m"
+    echo -e " \e[1;37mVersión:\e[0m        \e[1;32mv$VERSION\e[0m"
+    echo -e " \e[1;37mAutor:\e[0m          \e[1;36mJeff Cortez\e[0m"
+    echo -e " \e[1;37mRepositorio:\e[0m    \e[1;34mhttps://github.com/JeffCortez23/Fix_Sims_4_Linux\e[0m"
+    echo -e " \e[1;37mCompatibilidad:\e[0m \e[1;35mSteam, Steam Deck, Lutris, Bottles, Heroic, Wine\e[0m"
+    echo -e "\e[36m----------------------------------------------------\e[0m"
+    echo -e "\e[1;33m📜 Historial de Cambios (Changelog):\e[0m\n"
+    
+    echo -e "\e[1;32m[v2.1] - Nivel Dios: Diagnóstico, Caché & Multi-Lanzador\e[0m"
+    echo -e "  • 🔍 \e[1;37mInspector de DLCs\e[0m con nombres reales (EP/GP/SP/FP) y peso en disco."
+    echo -e "  • 🧹 \e[1;37mLimpiador de Caché\e[0m (localthumbcache.package) para arreglar carga infinita."
+    echo -e "  • 🌐 \e[1;37mAuto-descarga del Unlocker\e[0m con verificación de hash SHA-256."
+    echo -e "  • 🖥️ \e[1;37mAcceso directo (.desktop)\e[0m con icono oficial Plumbob para menú y escritorio."
+    echo -e "  • 🎮 \e[1;37mSoporte Multi-Lanzador\e[0m para Lutris, Bottles, Heroic Games y Wine."
+    echo -e "  • ℹ️ \e[1;37mPanel 'Acerca de'\e[0m integrado en el script."
+    echo ""
+    echo -e "\e[1;32m[v2.0] - Soporte Nueva EA App & Extracción en Lote\e[0m"
+    echo -e "  • Inyección dinámica de version.dll en subdirectorios versionados (13.xxx/EA Desktop)."
+    echo -e "  • Inyección automática de Wine DllOverrides (\"version\"=\"native,builtin\") en user.reg."
+    echo -e "  • Descompresión por lotes para carpetas con múltiples .zip/.rar/.7z (Telegram/Navegador)."
+    echo -e "  • Aplanador automático de carpetas anidadas ('all in one', 'The Sims 4')."
+    echo -e "  • Compatibilidad ampliada para Steam Flatpak, Snap y MicroSD en Steam Deck."
+    echo ""
+    echo -e "\e[1;32m[v1.0] - Lanzamiento Inicial\e[0m"
+    echo -e "  • Instalación básica de DLCs, inyección en EA App y asesino de procesos fantasma."
+    
+    echo -e "\n\e[36m====================================================\e[0m"
+    read -p "Presiona Enter para volver al menú principal..."
+}
+
 # --- MENÚ PRINCIPAL ---
 while true; do
     clear
     echo -e "\e[36m====================================================\e[0m"
-    echo -e "\e[1;32m    Gestor de Los Sims 4 (Linux Edition) v2.1       \e[0m"
+    echo -e "\e[1;32m    Gestor de Los Sims 4 (Linux Edition) v$VERSION       \e[0m"
     echo -e "\e[36m====================================================\e[0m"
     echo "1) Instalar / Mover DLCs al juego (ZIP, RAR, Lotes)"
     echo "2) Reactivar DLCs (Inyección EA App + Wine Override)"
@@ -590,9 +625,10 @@ while true; do
     echo "6) 🖥️ Crear Acceso Directo (.desktop / Steam Deck)"
     echo "7) 🔪 Forzar cierre de procesos colgados (Fix Sims/EA)"
     echo "8) ⚙️ Reconfigurar rutas del script / Lanzador"
-    echo "9) Salir"
+    echo "9) ℹ️ Acerca de & Changelog"
+    echo "0) Salir"
     echo -e "\e[36m====================================================\e[0m"
-    read -p "Elige una opción (1-9): " opcion
+    read -p "Elige una opción (0-9): " opcion
 
     case $opcion in
         1)
@@ -758,6 +794,10 @@ while true; do
             ;;
 
         9)
+            mostrar_acerca_de
+            ;;
+
+        0)
             echo "¡Que disfrutes jugando Los Sims 4!"
             exit 0
             ;;
