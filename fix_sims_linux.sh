@@ -38,10 +38,11 @@ HEROIC_PATHS=(
     "$HOME/.var/app/com.heroicgameslauncher.hgl/data/heroic/prefixes"
 )
 
-# --- MAPA DE NOMBRES DE DLCS ---
+# --- MAPA MAESTRO DE TODOS LOS DLCS DISPONIBLES EN LOS SIMS 4 ---
 obtener_nombre_dlc() {
     local code="$1"
     case "$code" in
+        # Packs de Expansión (EP)
         EP01) echo "¡A Trabajar! (Get to Work)" ;;
         EP02) echo "¿Quedamos? (Get Together)" ;;
         EP03) echo "Urbanitas (City Living)" ;;
@@ -64,6 +65,7 @@ obtener_nombre_dlc() {
         EP20) echo "Pack de Expansión 20" ;;
         EP21) echo "Pack de Expansión 21" ;;
         
+        # Packs de Contenido (GP)
         GP01) echo "De Acampada (Outdoor Retreat)" ;;
         GP02) echo "Día de Spa (Spa Day)" ;;
         GP03) echo "Escapada Gourmet (Dine Out)" ;;
@@ -77,24 +79,25 @@ obtener_nombre_dlc() {
         GP11) echo "Licántropos (Werewolves)" ;;
         GP12) echo "Pack de Contenido 12" ;;
         
-        SP01) echo "Fiesta Glamurosa" ;;
-        SP02) echo "Patio de Ensueño" ;;
-        SP03) echo "Cocina Divina" ;;
-        SP04) echo "Escalofriante" ;;
-        SP05) echo "Noche de Cine" ;;
-        SP06) echo "Jardín Romántico" ;;
-        SP07) echo "Cuarto de Niños" ;;
-        SP08) echo "Diversión en el Patio" ;;
-        SP09) echo "Glamour Vintage" ;;
-        SP10) echo "Noche de Bolos" ;;
-        SP11) echo "Fitness" ;;
-        SP12) echo "Infantes" ;;
-        SP13) echo "Día de Colada" ;;
-        SP14) echo "Mi Primera Mascota" ;;
-        SP15) echo "Moschino" ;;
-        SP16) echo "Minicasas" ;;
-        SP17) echo "Portentos del Punto" ;;
-        SP18) echo "Fenómenos Paranormales" ;;
+        # Packs de Accesorios y Kits (SP)
+        SP01) echo "Fiesta Glamurosa (Luxury Party)" ;;
+        SP02) echo "Patio de Ensueño (Perfect Patio)" ;;
+        SP03) echo "Cocina Divina (Cool Kitchen)" ;;
+        SP04) echo "Escalofriante (Spooky)" ;;
+        SP05) echo "Noche de Cine (Movie Hangout)" ;;
+        SP06) echo "Jardín Romántico (Romantic Garden)" ;;
+        SP07) echo "Cuarto de Niños (Kids Room)" ;;
+        SP08) echo "Diversión en el Patio (Backyard)" ;;
+        SP09) echo "Glamour Vintage (Vintage Glamour)" ;;
+        SP10) echo "Noche de Bolos (Bowling Night)" ;;
+        SP11) echo "Fitness (Fitness)" ;;
+        SP12) echo "Infantes (Toddler)" ;;
+        SP13) echo "Día de Colada (Laundry Day)" ;;
+        SP14) echo "Mi Primera Mascota (My First Pet)" ;;
+        SP15) echo "Moschino (Moschino)" ;;
+        SP16) echo "Minicasas (Tiny Living)" ;;
+        SP17) echo "Portentos del Punto (Nifty Knitting)" ;;
+        SP18) echo "Fenómenos Paranormales (Paranormal)" ;;
         SP20) echo "Zafarrancho de Limpieza (Kit)" ;;
         SP21) echo "Cocina Campestre (Kit)" ;;
         SP22) echo "Moda Retró (Kit)" ;;
@@ -127,12 +130,59 @@ obtener_nombre_dlc() {
         SP50) echo "Habitación Infantil Encantadora (Kit)" ;;
         SP51) echo "Estudio de Artista (Kit)" ;;
         SP52) echo "Salón de Cuentos (Kit)" ;;
+        SP53) echo "Kit 53" ;;
+        SP54) echo "Kit 54" ;;
+        SP55) echo "Kit 55" ;;
+        SP56) echo "Kit 56" ;;
+        SP57) echo "Kit 57" ;;
+        SP58) echo "Kit 58" ;;
+        SP59) echo "Kit 59" ;;
+        SP60) echo "Kit 60" ;;
+        SP61) echo "Kit 61" ;;
+        SP62) echo "Kit 62" ;;
+        SP63) echo "Kit 63" ;;
+        SP64) echo "Kit 64" ;;
+        SP65) echo "Kit 65" ;;
+        SP66) echo "Kit 66" ;;
+        SP67) echo "Kit 67" ;;
+        SP68) echo "Kit 68" ;;
+        SP69) echo "Kit 69" ;;
+        SP70) echo "Kit 70" ;;
+        SP71) echo "Kit 71" ;;
+        SP72) echo "Kit 72" ;;
+        SP73) echo "Kit 73" ;;
+        SP74) echo "Kit 74" ;;
+        SP75) echo "Kit 75" ;;
+        SP76) echo "Kit 76" ;;
+        SP77) echo "Kit 77" ;;
+        SP78) echo "Kit 78" ;;
+        SP79) echo "Kit 79" ;;
+        SP80) echo "Kit 80" ;;
+        SP81) echo "Kit 81" ;;
+        SP82) echo "Kit 82" ;;
         
+        # Festivos / Packs Gratuitos (FP)
         FP01) echo "Pack Felices Fiestas (Holiday Celebration)" ;;
         
         *) echo "Pack / Kit ($code)" ;;
     esac
 }
+
+# Lista maestra de todos los códigos de DLCs oficiales
+TODOS_LOS_DLCS=(
+    # Expansiones (17)
+    EP01 EP02 EP03 EP04 EP05 EP06 EP07 EP08 EP09 EP10 EP11 EP12 EP13 EP14 EP15 EP16 EP17
+    # Packs de Contenido (12)
+    GP01 GP02 GP03 GP04 GP05 GP06 GP07 GP08 GP09 GP10 GP11 GP12
+    # Festivos (1)
+    FP01
+    # Accesorios y Kits (78)
+    SP01 SP02 SP03 SP04 SP05 SP06 SP07 SP08 SP09 SP10 SP11 SP12 SP13 SP14 SP15 SP16 SP17 SP18
+    SP20 SP21 SP22 SP23 SP24 SP25 SP26 SP28 SP29 SP30 SP31 SP32 SP33 SP34 SP35 SP36 SP37 SP38
+    SP39 SP40 SP41 SP42 SP43 SP44 SP45 SP46 SP47 SP48 SP49 SP50 SP51 SP52 SP53 SP54 SP55 SP56
+    SP57 SP58 SP59 SP60 SP61 SP62 SP63 SP64 SP65 SP66 SP67 SP68 SP69 SP70 SP71 SP72 SP73 SP74
+    SP75 SP76 SP77 SP78 SP79 SP80 SP81 SP82
+)
 
 # --- FUNCIÓN DE BÚSQUEDA AUTOMÁTICA DE ARCHIVOS DEL UNLOCKER ---
 localizar_archivos_unlocker() {
@@ -408,7 +458,7 @@ except Exception as e:
     read -p "Presiona Enter para continuar..."
 }
 
-# --- INSPECTOR Y DIAGNÓSTICO DE DLCS (HEALTH CHECK) ---
+# --- INSPECTOR Y DIAGNÓSTICO DE DLCS (HEALTH CHECK COMPLETO) ---
 diagnosticar_dlcs() {
     clear
     echo -e "\e[36m====================================================\e[0m"
@@ -417,8 +467,8 @@ diagnosticar_dlcs() {
     echo -e "Ruta del Juego: \e[36m$SIMS_DIR\e[0m"
     echo -e "Ruta del Prefijo: \e[36m$PREFIX\e[0m\n"
 
-    # 1. Chequeo del Unlocker
-    echo -e "\e[1;34m[1. Estado del Unlocker en EA App & Wine]\e[0m"
+    # 1. Chequeo del Unlocker en EA App & Wine
+    echo -e "\e[1;34m[1. Estado de Activación e Inyección]\e[0m"
     local dll_count
     dll_count=$(find "$PREFIX/drive_c" -type f -name "version.dll" 2>/dev/null | grep -i "Electronic Arts" | wc -l)
     if [ "$dll_count" -gt 0 ]; then
@@ -441,34 +491,78 @@ diagnosticar_dlcs() {
         echo -e "  • Configuración de DLCs (AppData): \e[1;31m[❌ FALTA CONFIG.INI]\e[0m"
     fi
 
-    # 2. Chequeo de carpetas de DLCs
-    echo -e "\n\e[1;34m[2. Expansiones y Packs Instalados en Disco]\e[0m"
+    # 2. Comparar Catálogo Maestro vs Carpetas en Disco
+    echo -e "\n\e[1;34m[2. Estado de Todos los DLCs Oficiales (Instalados vs Faltantes)]\e[0m"
     
-    declare -a TIPOS=("EP" "GP" "SP" "FP")
+    local total_conocidos=${#TODOS_LOS_DLCS[@]}
     local total_instalados=0
-    
-    for tipo in "${TIPOS[@]}"; do
-        case "$tipo" in
-            EP) echo -e "\n\e[1;33m--- Packs de Expansión (EP) ---\e[0m" ;;
-            GP) echo -e "\n\e[1;33m--- Packs de Contenido (GP) ---\e[0m" ;;
-            SP) echo -e "\n\e[1;33m--- Packs de Accesorios & Kits (SP) ---\e[0m" ;;
-            FP) echo -e "\n\e[1;33m--- Packs Gratuitos (FP) ---\e[0m" ;;
-        esac
-        
-        mapfile -t packs < <(find "$SIMS_DIR" -maxdepth 1 -type d -name "${tipo}[0-9]*" | sort -V)
-        
-        for p in "${packs[@]}"; do
-            [ -d "$p" ] || continue
-            code=$(basename "$p")
-            nombre=$(obtener_nombre_dlc "$code")
-            size=$(du -sh "$p" 2>/dev/null | awk '{print $1}')
-            echo -e "  \e[1;32m[✔]\e[0m \e[1;37m$code\e[0m: $nombre \e[36m($size)\e[0m"
+    local total_faltantes=0
+
+    # Expansiones (EP)
+    echo -e "\n\e[1;33m--- Packs de Expansión (EP) ---\e[0m"
+    for code in EP01 EP02 EP03 EP04 EP05 EP06 EP07 EP08 EP09 EP10 EP11 EP12 EP13 EP14 EP15 EP16 EP17; do
+        nombre=$(obtener_nombre_dlc "$code")
+        if [ -d "$SIMS_DIR/$code" ]; then
+            size=$(du -sh "$SIMS_DIR/$code" 2>/dev/null | awk '{print $1}')
+            echo -e "  \e[1;32m[✔ INSTALADO]\e[0m \e[1;37m$code\e[0m: $nombre \e[36m($size)\e[0m"
             ((total_instalados++))
-        done
+        else
+            echo -e "  \e[1;31m[❌ NO INSTALADO]\e[0m \e[1;30m$code: $nombre\e[0m"
+            ((total_faltantes++))
+        fi
+    done
+
+    # Packs de Contenido (GP)
+    echo -e "\n\e[1;33m--- Packs de Contenido (GP) ---\e[0m"
+    for code in GP01 GP02 GP03 GP04 GP05 GP06 GP07 GP08 GP09 GP10 GP11 GP12; do
+        nombre=$(obtener_nombre_dlc "$code")
+        if [ -d "$SIMS_DIR/$code" ]; then
+            size=$(du -sh "$SIMS_DIR/$code" 2>/dev/null | awk '{print $1}')
+            echo -e "  \e[1;32m[✔ INSTALADO]\e[0m \e[1;37m$code\e[0m: $nombre \e[36m($size)\e[0m"
+            ((total_instalados++))
+        else
+            echo -e "  \e[1;31m[❌ NO INSTALADO]\e[0m \e[1;30m$code: $nombre\e[0m"
+            ((total_faltantes++))
+        fi
+    done
+
+    # Packs Gratuitos (FP)
+    echo -e "\n\e[1;33m--- Packs Gratuitos / Especiales (FP) ---\e[0m"
+    for code in FP01; do
+        nombre=$(obtener_nombre_dlc "$code")
+        if [ -d "$SIMS_DIR/$code" ]; then
+            size=$(du -sh "$SIMS_DIR/$code" 2>/dev/null | awk '{print $1}')
+            echo -e "  \e[1;32m[✔ INSTALADO]\e[0m \e[1;37m$code\e[0m: $nombre \e[36m($size)\e[0m"
+            ((total_instalados++))
+        else
+            echo -e "  \e[1;31m[❌ NO INSTALADO]\e[0m \e[1;30m$code: $nombre\e[0m"
+            ((total_faltantes++))
+        fi
+    done
+
+    # Accesorios y Kits (SP)
+    echo -e "\n\e[1;33m--- Packs de Accesorios & Kits (SP) ---\e[0m"
+    for code in SP01 SP02 SP03 SP04 SP05 SP06 SP07 SP08 SP09 SP10 SP11 SP12 SP13 SP14 SP15 SP16 SP17 SP18 \
+                SP20 SP21 SP22 SP23 SP24 SP25 SP26 SP28 SP29 SP30 SP31 SP32 SP33 SP34 SP35 SP36 SP37 SP38 \
+                SP39 SP40 SP41 SP42 SP43 SP44 SP45 SP46 SP47 SP48 SP49 SP50 SP51 SP52 SP53 SP54 SP55 SP56 \
+                SP57 SP58 SP59 SP60 SP61 SP62 SP63 SP64 SP65 SP66 SP67 SP68 SP69 SP70 SP71 SP72 SP73 SP74 \
+                SP75 SP76 SP77 SP78 SP79 SP80 SP81 SP82; do
+        nombre=$(obtener_nombre_dlc "$code")
+        if [ -d "$SIMS_DIR/$code" ]; then
+            size=$(du -sh "$SIMS_DIR/$code" 2>/dev/null | awk '{print $1}')
+            echo -e "  \e[1;32m[✔ INSTALADO]\e[0m \e[1;37m$code\e[0m: $nombre \e[36m($size)\e[0m"
+            ((total_instalados++))
+        else
+            echo -e "  \e[1;31m[❌ NO INSTALADO]\e[0m \e[1;30m$code: $nombre\e[0m"
+            ((total_faltantes++))
+        fi
     done
 
     echo -e "\n\e[36m====================================================\e[0m"
-    echo -e "\e[1;32mTotal de carpetas de DLCs listas: $total_instalados\e[0m"
+    echo -e "\e[1;32m📊 RESUMEN GENERAL DE DLCs:\e[0m"
+    echo -e "  • Total en Catálogo Oficial: \e[1;37m$total_conocidos packs\e[0m"
+    echo -e "  • Instalados en tu disco:    \e[1;32m$total_instalados packs\e[0m"
+    echo -e "  • Faltantes por descargar:   \e[1;31m$total_faltantes packs\e[0m"
     echo -e "\e[36m====================================================\e[0m"
     read -p "Presiona Enter para volver al menú..."
 }
@@ -589,8 +683,8 @@ mostrar_acerca_de() {
     echo -e "\e[36m----------------------------------------------------\e[0m"
     echo -e "\e[1;33m📜 Historial de Cambios (Changelog):\e[0m\n"
     
-    echo -e "\e[1;32m[v2.1] - Nivel Dios: Diagnóstico, Caché & Multi-Lanzador\e[0m"
-    echo -e "  • 🔍 \e[1;37mInspector de DLCs\e[0m con nombres reales (EP/GP/SP/FP) y peso en disco."
+    echo -e "\e[1;32m[v2.1] - Nivel Dios: Diagnóstico Maestro, Caché & Multi-Lanzador\e[0m"
+    echo -e "  • 🔍 \e[1;37mInspector Maestro de DLCs\e[0m: Compara el catálogo oficial completo contra tu disco (detecta instalados vs faltantes)."
     echo -e "  • 🧹 \e[1;37mLimpiador de Caché\e[0m (localthumbcache.package) para arreglar carga infinita."
     echo -e "  • 🌐 \e[1;37mAuto-descarga del Unlocker\e[0m con verificación de hash SHA-256."
     echo -e "  • 🖥️ \e[1;37mAcceso directo (.desktop)\e[0m con icono oficial Plumbob para menú y escritorio."
