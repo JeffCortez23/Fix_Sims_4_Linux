@@ -202,10 +202,11 @@ descargar_unlocker_auto() {
     echo -e "${P}Conectando con el servidor oficial (Tiesas Archives / Anadius)..."
     mkdir -p "$UNLOCKER_STORE/ea_app"
     
-    python3 -c '
+    PAD_LEN=${#P} python3 -c '
 import urllib.request, json, ssl, hashlib, os, sys, uuid
 from pathlib import Path
 
+pad = " " * int(os.environ.get("PAD_LEN", "0"))
 store = Path(os.path.expanduser("~/.local/share/sims4_unlocker"))
 manifest_url = "https://access.tiesasarchives.uk/api/unlocker/manifest?channel=stable&platform=linux&architecture=x64"
 device_id = str(uuid.uuid4())
@@ -222,13 +223,13 @@ try:
         data = json.load(resp)
     
     version = data.get("version", "3.4.0")
-    print(f"  ✔ Publicación oficial encontrada: v{version}")
+    print(f"{pad}  ✔ Publicación oficial encontrada: v{version}")
     
     for art in data.get("artifacts", []):
         rel_path = art["path"]
         dest = store / rel_path
         dest.parent.mkdir(parents=True, exist_ok=True)
-        print(f"  ⬇ Descargando: {rel_path}...")
+        print(f"{pad}  ⬇ Descargando: {rel_path}...")
         
         art_req = urllib.request.Request(art["downloadUrl"], headers=headers)
         with urllib.request.urlopen(art_req, context=ctx, timeout=30) as d_resp:
@@ -239,9 +240,9 @@ try:
         
         dest.write_bytes(content)
         
-    print("\n  \033[1;32m✔ ¡Archivos del Unlocker descargados y verificados con éxito!\033[0m")
+    print(f"\n{pad}  \033[1;32m✔ ¡Archivos del Unlocker descargados y verificados con éxito!\033[0m")
 except Exception as e:
-    print(f"\n  \033[1;31m❌ Error al descargar automáticamente: {e}\033[0m")
+    print(f"\n{pad}  \033[1;31m❌ Error al descargar automáticamente: {e}\033[0m")
     sys.exit(1)
 '
 
