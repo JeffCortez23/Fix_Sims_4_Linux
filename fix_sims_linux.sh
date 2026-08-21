@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # ==============================================================================
-#   Gestor de Los Sims 4 (Linux Edition) v2.1
+#   💎 Fix Sims 4 Linux (Edición Comunitaria) v2.1
 #   Soporta Steam, Steam Deck, Lutris, Bottles, Heroic & Wine
 #   Compatible con nuevas versiones de EA App
 #   Desarrollado por Jeff Cortez (github.com/JeffCortez23)
@@ -12,6 +12,17 @@ CONFIG_FILE="$HOME/.config/sims4_gestor.conf"
 UNLOCKER_STORE="$HOME/.local/share/sims4_unlocker"
 ICON_PATH="$HOME/.local/share/icons/fix-sims-4.svg"
 VERSION="2.1"
+
+# --- UTILIDADES DE CENTRADO Y ESTILO TUI ---
+WIDTH=70
+
+obtener_padding() {
+    local cols
+    cols=$(tput cols 2>/dev/null || echo 80)
+    [ "$cols" -lt "$WIDTH" ] && cols="$WIDTH"
+    local pad=$(( (cols - WIDTH) / 2 ))
+    printf '%*s' "$pad" ''
+}
 
 # Lista de ubicaciones comunes de Steam
 STEAM_PATHS=(
@@ -168,7 +179,7 @@ obtener_nombre_dlc() {
     esac
 }
 
-# Lista maestra de códigos oficiales
+# Listas maestras de códigos oficiales
 LISTA_EP=(EP01 EP02 EP03 EP04 EP05 EP06 EP07 EP08 EP09 EP10 EP11 EP12 EP13 EP14 EP15 EP16 EP17 EP18 EP19 EP20 EP21)
 LISTA_GP=(GP01 GP02 GP03 GP04 GP05 GP06 GP07 GP08 GP09 GP10 GP11 GP12)
 LISTA_SP_ACC=(SP01 SP02 SP03 SP04 SP05 SP06 SP07 SP08 SP09 SP10 SP11 SP12 SP13 SP14 SP15 SP16 SP17 SP18 SP46 SP49)
@@ -179,7 +190,7 @@ LISTA_KITS=(
     SP77 SP78 SP79 SP80 SP81 SP82
 )
 
-# --- FUNCIÓN DE BÚSQUEDA AUTOMÁTICA DE ARCHIVOS DEL UNLOCKER ---
+# --- BÚSQUEDA AUTOMÁTICA DE ARCHIVOS DEL UNLOCKER ---
 localizar_archivos_unlocker() {
     UNLOCKER_DLL=""
     UNLOCKER_INI=""
@@ -225,7 +236,7 @@ detectar_entornos() {
                     
                     nombre="Steam ($path)"
                     if [ -d "$path/steamapps/common/The Sims 4" ]; then
-                        nombre="Steam (Los Sims 4 encontrado aquí: $path)"
+                        nombre="Steam (Los Sims 4 encontrado aquí)"
                     fi
                     
                     if [[ ! " ${DETECTED_ENTORNOS_LIBS[*]} " =~ " ${path} " ]]; then
@@ -284,20 +295,24 @@ detectar_entornos() {
 # --- CONFIGURACIÓN INICIAL ---
 configurar_rutas() {
     clear
-    echo -e "\e[36m====================================================\e[0m"
-    echo -e "\e[1;33m      Configuración Inicial de Rutas / Lanzador     \e[0m"
-    echo -e "\e[36m====================================================\e[0m"
-    echo "Buscando instalaciones de Steam, Lutris, Bottles y Heroic..."
+    local P
+    P=$(obtener_padding)
+    echo ""
+    echo -e "${P}\e[1;36m╭────────────────────────────────────────────────────────────────────╮\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m            \e[1;33m⚙️  CONFIGURACIÓN DE RUTAS / LANZADOR\e[0m                    \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m╰────────────────────────────────────────────────────────────────────╯\e[0m"
+    echo -e "${P}Buscando instalaciones de Steam, Lutris, Bottles y Heroic..."
     detectar_entornos
 
     if [ ${#DETECTED_ENTORNOS_NOMBRES[@]} -gt 0 ]; then
-        echo -e "\n\e[1;32m¡Se encontraron las siguientes instalaciones!\e[0m"
+        echo -e "\n${P}\e[1;32m¡Instalaciones detectadas en tu sistema!\e[0m"
         for i in "${!DETECTED_ENTORNOS_NOMBRES[@]}"; do
-            echo -e "$((i+1)). ${DETECTED_ENTORNOS_NOMBRES[$i]}"
+            echo -e "${P}  \e[1;33m$((i+1))\e[0m) ${DETECTED_ENTORNOS_NOMBRES[$i]}"
         done
-        echo "$(( ${#DETECTED_ENTORNOS_NOMBRES[@]} + 1 )). Introducir rutas manualmente"
+        echo -e "${P}  \e[1;33m$(( ${#DETECTED_ENTORNOS_NOMBRES[@]} + 1 ))\e[0m) Introducir rutas manualmente"
         
-        read -p "Elige una opción (1-$(( ${#DETECTED_ENTORNOS_NOMBRES[@]} + 1 ))): " opcion_env
+        echo -ne "\n${P}\e[1;37mElige una opción (1-$(( ${#DETECTED_ENTORNOS_NOMBRES[@]} + 1 ))):\e[0m "
+        read -r opcion_env
         
         if [ "$opcion_env" -ge 1 ] && [ "$opcion_env" -le "${#DETECTED_ENTORNOS_NOMBRES[@]}" ] 2>/dev/null; then
             STEAM_LIBRARY="${DETECTED_ENTORNOS_LIBS[$((opcion_env-1))]}"
@@ -306,8 +321,9 @@ configurar_rutas() {
     fi
 
     if [ -z "$STEAM_LIBRARY" ]; then
-        echo -e "\n\e[1;34m💡 PRO-TIP:\e[0m Arrastra la carpeta donde instalaste tu Biblioteca de Steam / Juego"
-        read -p "Ruta de la biblioteca: " input_lib
+        echo -e "\n${P}\e[1;34m💡 PRO-TIP:\e[0m Arrastra la carpeta donde instalaste tu Biblioteca / Juego"
+        echo -ne "${P}Ruta de la biblioteca: "
+        read -r input_lib
         STEAM_LIBRARY="${input_lib//\'/}"
         STEAM_LIBRARY="${STEAM_LIBRARY%"${STEAM_LIBRARY##*[![:space:]]}"}"
     fi
@@ -316,9 +332,10 @@ configurar_rutas() {
         STEAM_COMPATDATA="$STEAM_LIBRARY"
     fi
 
-    echo -e "\n\e[1;32mExcelente.\e[0m Ahora necesitamos la ruta donde guardas tus DLCs."
-    echo -e "\e[1;34m💡 PRO-TIP:\e[0m Arrastra la carpeta o archivo (.zip/.rar/.7z) de tus DLCs."
-    read -p "> " input_dlc
+    echo -e "\n${P}\e[1;32mExcelente.\e[0m Ahora necesitamos la ruta donde guardas tus DLCs."
+    echo -e "${P}\e[1;34m💡 PRO-TIP:\e[0m Arrastra la carpeta o archivo (.zip/.rar/.7z) de tus DLCs."
+    echo -ne "${P}> "
+    read -r input_dlc
     
     input_dlc="${input_dlc//\'/}"
     input_dlc="${input_dlc%"${input_dlc##*[![:space:]]}"}"
@@ -331,7 +348,7 @@ STEAM_COMPATDATA="$STEAM_COMPATDATA"
 DLC_SOURCE="$DLC_SOURCE"
 EOF
 
-    echo -e "\n\e[1;32m¡Configuración guardada con éxito en $CONFIG_FILE!\e[0m"
+    echo -e "\n${P}\e[1;32m✔ ¡Configuración guardada con éxito en $CONFIG_FILE!\e[0m"
     sleep 1
 }
 
@@ -361,50 +378,61 @@ fi
 
 USER_REG="$PREFIX/user.reg"
 
-# --- FUNCIÓN DE APLICAR OVERRIDE EN USER.REG ---
+# --- APLICAR OVERRIDE EN USER.REG ---
 aplicar_dll_override() {
     local reg_file="$1"
+    local P
+    P=$(obtener_padding)
     if [ ! -f "$reg_file" ]; then
-        echo -e "\e[33mNo se encontró $reg_file aún. Ejecuta el juego una vez para generar el prefijo.\e[0m"
+        echo -e "${P}\e[33mNo se encontró $reg_file aún. Ejecuta el juego una vez para generar el prefijo.\e[0m"
         return 1
     fi
 
     if grep -q '"version"="native,builtin"' "$reg_file"; then
-        echo -e "\e[32m✔ Override de version.dll ya está registrado en el registro de Wine.\e[0m"
+        echo -e "${P}\e[32m✔ Override de version.dll ya está registrado en el registro de Wine.\e[0m"
         return 0
     fi
 
-    echo "Añadiendo DllOverride para version.dll en Wine..."
+    echo -e "${P}Añadiendo DllOverride para version.dll en Wine..."
     timestamp=$(date +%s)
     cat <<EOF >> "$reg_file"
 
 [Software\\\\Wine\\\\DllOverrides] $timestamp
 "version"="native,builtin"
 EOF
-    echo -e "\e[32m✔ DllOverride añadido exitosamente a $reg_file\e[0m"
+    echo -e "${P}\e[32m✔ DllOverride añadido exitosamente a $reg_file\e[0m"
 }
 
-# --- FUNCIÓN PARA ORGANIZAR DLCS (Aplanador) ---
+# --- ORGANIZAR DLCS (Aplanador) ---
 arreglar_estructura_dlcs() {
     local sims_path="$1"
+    local P
+    P=$(obtener_padding)
     if [ -d "$sims_path/all in one" ]; then
-        echo "Detectada carpeta anidada 'all in one'. Moviendo DLCs a la raíz..."
+        echo -e "${P}Detectada carpeta anidada 'all in one'. Moviendo DLCs a la raíz..."
         mv -n "$sims_path/all in one/"* "$sims_path/" 2>/dev/null
         rmdir "$sims_path/all in one" 2>/dev/null || true
     fi
 
     for sub in "$sims_path/The Sims 4" "$sims_path/Los Sims 4" "$sims_path/DLCs"; do
         if [ -d "$sub" ]; then
-            echo "Moviendo archivos desde $sub a la raíz del juego..."
+            echo -e "${P}Moviendo archivos desde $sub a la raíz del juego..."
             mv -n "$sub/"* "$sims_path/" 2>/dev/null
             rmdir "$sub" 2>/dev/null || true
         fi
     done
 }
 
-# --- AUTO-DESCARGADOR DE UNLOCKER (JARDINERA) ---
+# --- AUTO-DESCARGADOR DE UNLOCKER ---
 descargar_unlocker_auto() {
-    echo -e "\n\e[1;36m[Conectando con el servidor para descargar EA DLC Unlocker...]\e[0m"
+    clear
+    local P
+    P=$(obtener_padding)
+    echo ""
+    echo -e "${P}\e[1;36m╭────────────────────────────────────────────────────────────────────╮\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m          \e[1;32m🌐 DESCARGA AUTOMÁTICA DEL EA DLC UNLOCKER\e[0m                \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m╰────────────────────────────────────────────────────────────────────╯\e[0m"
+    echo -e "${P}Conectando con el servidor oficial (Tiesas Archives / Anadius)..."
     mkdir -p "$UNLOCKER_STORE/ea_app"
     
     python3 -c '
@@ -422,13 +450,13 @@ try:
         data = json.load(resp)
     
     version = data.get("version", "3.4.0")
-    print(f"✔ Publicación encontrada: v{version}")
+    print(f"  ✔ Publicación oficial encontrada: v{version}")
     
     for art in data.get("artifacts", []):
         rel_path = art["path"]
         dest = store / rel_path
         dest.parent.mkdir(parents=True, exist_ok=True)
-        print(f"  Descargando: {rel_path}...")
+        print(f"  ⬇ Descargando: {rel_path}...")
         
         art_req = urllib.request.Request(art["downloadUrl"], headers=headers)
         with urllib.request.urlopen(art_req, context=ctx, timeout=30) as d_resp:
@@ -439,130 +467,139 @@ try:
         
         dest.write_bytes(content)
         
-    print("\n\033[32m✔ ¡Archivos del Unlocker descargados y verificados con éxito!\033[0m")
+    print("\n  \033[1;32m✔ ¡Archivos del Unlocker descargados y verificados con éxito!\033[0m")
 except Exception as e:
-    print(f"\n\033[31mError al descargar automáticamente: {e}\033[0m")
+    print(f"\n  \033[1;31m❌ Error al descargar automáticamente: {e}\033[0m")
     sys.exit(1)
 '
 
     if [ $? -eq 0 ]; then
-        echo -e "\e[1;32mArchivos del Unlocker guardados en: $UNLOCKER_STORE\e[0m"
+        echo -e "\n${P}\e[1;32mArchivos guardados en:\e[0m $UNLOCKER_STORE"
     else
-        echo -e "\e[33mSi prefieres descargarlo de Telegram, está disponible en: https://t.me/c/3910223807/11\e[0m"
+        echo -e "\n${P}\e[33mSi prefieres descargarlo de Telegram: https://t.me/c/3910223807/11\e[0m"
     fi
-    read -p "Presiona Enter para continuar..."
+    echo -ne "\n${P}Presiona Enter para continuar..."
+    read -r
 }
 
-# --- INSPECTOR Y DIAGNÓSTICO DE DLCS (GUÍA MAESTRA COMPLETA) ---
+# --- INSPECTOR Y DIAGNÓSTICO DE DLCS ---
 diagnosticar_dlcs() {
     clear
-    echo -e "\e[36m======================================================================\e[0m"
-    echo -e "\e[1;33m       🔍 Guía de Códigos & Diagnóstico de DLCs - Los Sims 4          \e[0m"
-    echo -e "\e[36m======================================================================\e[0m"
-    echo -e "Ruta del Juego: \e[36m$SIMS_DIR\e[0m"
-    echo -e "Ruta del Prefijo: \e[36m$PREFIX\e[0m\n"
+    local P
+    P=$(obtener_padding)
+    echo ""
+    echo -e "${P}\e[1;36m╭────────────────────────────────────────────────────────────────────╮\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m        \e[1;33m🔍 GUÍA DE CÓDIGOS & DIAGNÓSTICO DE DLCS - LOS SIMS 4\e[0m       \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m├────────────────────────────────────────────────────────────────────┤\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m  \e[1;37mJuego:\e[0m   \e[36m${SIMS_DIR:0:55}\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m  \e[1;37mPrefijo:\e[0m \e[36m${PREFIX:0:55}\e[0m"
+    echo -e "${P}\e[1;36m├────────────────────────────────────────────────────────────────────┤\e[0m"
 
     # 1. Chequeo del Unlocker en EA App & Wine
-    echo -e "\e[1;34m[1. Estado de Activación e Inyección EA App]\e[0m"
     local dll_count
     dll_count=$(find "$PREFIX/drive_c" -type f -name "version.dll" 2>/dev/null | grep -i "Electronic Arts" | wc -l)
     if [ "$dll_count" -gt 0 ]; then
-        echo -e "  • Inyección de version.dll: \e[1;32m[✔ INYECTADO] ($dll_count ubicaciones)\e[0m"
+        echo -e "${P}\e[1;36m│\e[0m  • Inyección version.dll:     \e[1;32m[✔ INYECTADO] ($dll_count ubicaciones)\e[0m"
     else
-        echo -e "  • Inyección de version.dll: \e[1;31m[❌ NO DETECTADO]\e[0m"
+        echo -e "${P}\e[1;36m│\e[0m  • Inyección version.dll:     \e[1;31m[❌ NO DETECTADO]\e[0m"
     fi
 
     if [ -f "$USER_REG" ] && grep -q '"version"="native,builtin"' "$USER_REG"; then
-        echo -e "  • Wine DllOverrides (user.reg): \e[1;32m[✔ ACTIVO ('version'='native,builtin')]\e[0m"
+        echo -e "${P}\e[1;36m│\e[0m  • Wine DllOverrides:         \e[1;32m[✔ ACTIVO ('version'='native,builtin')]\e[0m"
     else
-        echo -e "  • Wine DllOverrides (user.reg): \e[1;31m[❌ FALTA CONFIGURAR]\e[0m"
+        echo -e "${P}\e[1;36m│\e[0m  • Wine DllOverrides:         \e[1;31m[❌ FALTA CONFIGURAR]\e[0m"
     fi
 
     local conf_count
     conf_count=$(find "$PREFIX/drive_c/users" -type f -name "g_LOS SIMS 4.ini" 2>/dev/null | wc -l)
     if [ "$conf_count" -gt 0 ]; then
-        echo -e "  • Configuración de DLCs (AppData): \e[1;32m[✔ INSTALADA]\e[0m"
+        echo -e "${P}\e[1;36m│\e[0m  • Configuración AppData:     \e[1;32m[✔ INSTALADA]\e[0m"
     else
-        echo -e "  • Configuración de DLCs (AppData): \e[1;31m[❌ FALTA CONFIG.INI]\e[0m"
+        echo -e "${P}\e[1;36m│\e[0m  • Configuración AppData:     \e[1;31m[❌ FALTA CONFIG.INI]\e[0m"
     fi
+    echo -e "${P}\e[1;36m╰────────────────────────────────────────────────────────────────────╯\e[0m"
 
     local total_instalados=0
     local total_faltantes=0
 
     # 2. Packs de Expansión (EP)
-    echo -e "\n\e[1;33m--- 📦 Packs de Expansión (EP) [Total: ${#LISTA_EP[@]}] ---\e[0m"
+    echo -e "\n${P}\e[1;33m--- 📦 Packs de Expansión (EP) [Total: ${#LISTA_EP[@]}] ---\e[0m"
     for code in "${LISTA_EP[@]}"; do
         nombre=$(obtener_nombre_dlc "$code")
         if [ -d "$SIMS_DIR/$code" ]; then
             size=$(du -sh "$SIMS_DIR/$code" 2>/dev/null | awk '{print $1}')
-            echo -e "  \e[1;32m[✔ INSTALADO]\e[0m \e[1;37m$code\e[0m: $nombre \e[36m($size)\e[0m"
+            echo -e "${P}  \e[1;32m[✔ INSTALADO]\e[0m \e[1;37m$code\e[0m: $nombre \e[36m($size)\e[0m"
             ((total_instalados++))
         else
-            echo -e "  \e[1;31m[❌ NO INSTALADO]\e[0m \e[1;30m$code: $nombre\e[0m"
+            echo -e "${P}  \e[1;31m[❌ NO INSTALADO]\e[0m \e[2;37m$code: $nombre\e[0m"
             ((total_faltantes++))
         fi
     done
 
     # 3. Packs de Contenido (GP)
-    echo -e "\n\e[1;33m--- 🔮 Packs de Contenido (GP) [Total: ${#LISTA_GP[@]}] ---\e[0m"
+    echo -e "\n${P}\e[1;33m--- 🔮 Packs de Contenido (GP) [Total: ${#LISTA_GP[@]}] ---\e[0m"
     for code in "${LISTA_GP[@]}"; do
         nombre=$(obtener_nombre_dlc "$code")
         if [ -d "$SIMS_DIR/$code" ]; then
             size=$(du -sh "$SIMS_DIR/$code" 2>/dev/null | awk '{print $1}')
-            echo -e "  \e[1;32m[✔ INSTALADO]\e[0m \e[1;37m$code\e[0m: $nombre \e[36m($size)\e[0m"
+            echo -e "${P}  \e[1;32m[✔ INSTALADO]\e[0m \e[1;37m$code\e[0m: $nombre \e[36m($size)\e[0m"
             ((total_instalados++))
         else
-            echo -e "  \e[1;31m[❌ NO INSTALADO]\e[0m \e[1;30m$code: $nombre\e[0m"
+            echo -e "${P}  \e[1;31m[❌ NO INSTALADO]\e[0m \e[2;37m$code: $nombre\e[0m"
             ((total_faltantes++))
         fi
     done
 
     # 4. Packs de Accesorios (SP)
-    echo -e "\n\e[1;33m--- 🛋️ Packs de Accesorios (SP) [Total: ${#LISTA_SP_ACC[@]}] ---\e[0m"
+    echo -e "\n${P}\e[1;33m--- 🛋️ Packs de Accesorios (SP) [Total: ${#LISTA_SP_ACC[@]}] ---\e[0m"
     for code in "${LISTA_SP_ACC[@]}"; do
         nombre=$(obtener_nombre_dlc "$code")
         if [ -d "$SIMS_DIR/$code" ]; then
             size=$(du -sh "$SIMS_DIR/$code" 2>/dev/null | awk '{print $1}')
-            echo -e "  \e[1;32m[✔ INSTALADO]\e[0m \e[1;37m$code\e[0m: $nombre \e[36m($size)\e[0m"
+            echo -e "${P}  \e[1;32m[✔ INSTALADO]\e[0m \e[1;37m$code\e[0m: $nombre \e[36m($size)\e[0m"
             ((total_instalados++))
         else
-            echo -e "  \e[1;31m[❌ NO INSTALADO]\e[0m \e[1;30m$code: $nombre\e[0m"
+            echo -e "${P}  \e[1;31m[❌ NO INSTALADO]\e[0m \e[2;37m$code: $nombre\e[0m"
             ((total_faltantes++))
         fi
     done
 
-    # 5. Lista completa de Kits (SP) & Festivos (FP)
-    echo -e "\n\e[1;33m--- 🎨 Lista Completa de Kits (SP) & Festivos [Total: ${#LISTA_KITS[@]}] ---\e[0m"
+    # 5. Kits & Festivos
+    echo -e "\n${P}\e[1;33m--- 🎨 Lista Completa de Kits (SP) & Festivos [Total: ${#LISTA_KITS[@]}] ---\e[0m"
     for code in "${LISTA_KITS[@]}"; do
         nombre=$(obtener_nombre_dlc "$code")
         if [ -d "$SIMS_DIR/$code" ]; then
             size=$(du -sh "$SIMS_DIR/$code" 2>/dev/null | awk '{print $1}')
-            echo -e "  \e[1;32m[✔ INSTALADO]\e[0m \e[1;37m$code\e[0m: $nombre \e[36m($size)\e[0m"
+            echo -e "${P}  \e[1;32m[✔ INSTALADO]\e[0m \e[1;37m$code\e[0m: $nombre \e[36m($size)\e[0m"
             ((total_instalados++))
         else
-            echo -e "  \e[1;31m[❌ NO INSTALADO]\e[0m \e[1;30m$code: $nombre\e[0m"
+            echo -e "${P}  \e[1;31m[❌ NO INSTALADO]\e[0m \e[2;37m$code: $nombre\e[0m"
             ((total_faltantes++))
         fi
     done
 
     local total_general=$(( ${#LISTA_EP[@]} + ${#LISTA_GP[@]} + ${#LISTA_SP_ACC[@]} + ${#LISTA_KITS[@]} ))
 
-    echo -e "\n\e[36m======================================================================\e[0m"
-    echo -e "\e[1;32m📊 RESUMEN GENERAL DE DLCs:\e[0m"
-    echo -e "  • Total en Guía Oficial:  \e[1;37m$total_general packs\e[0m"
-    echo -e "  • Instalados en tu disco: \e[1;32m$total_instalados packs\e[0m"
-    echo -e "  • Faltantes por instalar: \e[1;31m$total_faltantes packs\e[0m"
-    echo -e "\e[36m======================================================================\e[0m"
-    read -p "Presiona Enter para volver al menú..."
+    echo -e "\n${P}\e[1;36m╭────────────────────────────────────────────────────────────────────╮\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m  \e[1;32m📊 RESUMEN GENERAL DE DLCS:\e[0m                                       \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m    • Total en Guía Oficial:  \e[1;37m$total_general packs\e[0m                                \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m    • Instalados en tu disco: \e[1;32m$total_instalados packs\e[0m                                \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m    • Faltantes por instalar: \e[1;31m$total_faltantes packs\e[0m                                \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m╰────────────────────────────────────────────────────────────────────╯\e[0m"
+    echo -ne "\n${P}Presiona Enter para volver al menú..."
+    read -r
 }
 
 # --- LIMPIADOR DE CACHÉ DEL JUEGO ---
 limpiar_cache_juego() {
     clear
-    echo -e "\e[36m====================================================\e[0m"
-    echo -e "\e[1;33m      🧹 Limpiador de Caché del Juego (TS4)         \e[0m"
-    echo -e "\e[36m====================================================\e[0m"
-    echo "Buscando carpetas de datos de usuario de Los Sims 4..."
+    local P
+    P=$(obtener_padding)
+    echo ""
+    echo -e "${P}\e[1;36m╭────────────────────────────────────────────────────────────────────╮\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m          \e[1;33m🧹 LIMPIADOR DE CACHÉ DEL JUEGO (LOS SIMS 4)\e[0m               \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m╰────────────────────────────────────────────────────────────────────╯\e[0m"
+    echo -e "${P}Buscando carpetas de datos de usuario..."
 
     CANDIDATOS_DOCS=(
         "$PREFIX/drive_c/users/steamuser/Documents/Electronic Arts/The Sims 4"
@@ -579,35 +616,43 @@ limpiar_cache_juego() {
     done
 
     if [ ${#FOUND_DOCS[@]} -eq 0 ]; then
-        echo -e "\e[31mNo se encontró la carpeta de usuario de Los Sims 4.\e[0m"
-        echo "Asegúrate de haber abierto el juego al menos una vez."
-        read -p "Presiona Enter para continuar..."
+        echo -e "\n${P}\e[31mNo se encontró la carpeta de usuario de Los Sims 4.\e[0m"
+        echo -e "${P}Asegúrate de haber abierto el juego al menos una vez."
+        echo -ne "\n${P}Presiona Enter para continuar..."
+        read -r
         return
     fi
 
     for ts4_user in "${FOUND_DOCS[@]}"; do
-        echo -e "\nLimpiando carpeta: \e[36m$ts4_user\e[0m"
+        echo -e "\n${P}Limpiando carpeta: \e[36m$ts4_user\e[0m"
         
-        rm -f "$ts4_user/localthumbcache.package" 2>/dev/null && echo "  ✔ localthumbcache.package eliminado"
-        rm -f "$ts4_user/avatarcache.package" 2>/dev/null && echo "  ✔ avatarcache.package eliminado"
-        rm -f "$ts4_user/clientDB.package" 2>/dev/null && echo "  ✔ clientDB.package eliminado"
-        rm -rf "$ts4_user/cache"/* 2>/dev/null && echo "  ✔ Contenido de /cache/ purgado"
-        rm -rf "$ts4_user/cachestr"/* 2>/dev/null && echo "  ✔ Contenido de /cachestr/ purgado"
-        rm -rf "$ts4_user/onlinerequestcache"/* 2>/dev/null && echo "  ✔ Contenido de /onlinerequestcache/ purgado"
-        rm -rf "$ts4_user/lotcachedData"/* 2>/dev/null && echo "  ✔ Contenido de /lotcachedData/ purgado"
+        rm -f "$ts4_user/localthumbcache.package" 2>/dev/null && echo -e "${P}  ✔ localthumbcache.package eliminado"
+        rm -f "$ts4_user/avatarcache.package" 2>/dev/null && echo -e "${P}  ✔ avatarcache.package eliminado"
+        rm -f "$ts4_user/clientDB.package" 2>/dev/null && echo -e "${P}  ✔ clientDB.package eliminado"
+        rm -rf "$ts4_user/cache"/* 2>/dev/null && echo -e "${P}  ✔ Contenido de /cache/ purgado"
+        rm -rf "$ts4_user/cachestr"/* 2>/dev/null && echo -e "${P}  ✔ Contenido de /cachestr/ purgado"
+        rm -rf "$ts4_user/onlinerequestcache"/* 2>/dev/null && echo -e "${P}  ✔ Contenido de /onlinerequestcache/ purgado"
+        rm -rf "$ts4_user/lotcachedData"/* 2>/dev/null && echo -e "${P}  ✔ Contenido de /lotcachedData/ purgado"
     done
 
     rm -rf "$PREFIX/drive_c/users"/*/AppData/Local/Electronic\ Arts/EA\ Desktop 2>/dev/null
     rm -rf "$PREFIX/drive_c/users"/*/AppData/Local/EADesktop 2>/dev/null
     rm -rf "$PREFIX/drive_c/users"/*/AppData/Local/Origin 2>/dev/null
 
-    echo -e "\n\e[1;32m¡Caché limpiada con éxito! Esto previene cargas infinitas y errores de interfaz.\e[0m"
-    read -p "Presiona Enter para continuar..."
+    echo -e "\n${P}\e[1;32m✔ ¡Caché limpiada con éxito! Esto previene cargas infinitas y errores.\e[0m"
+    echo -ne "\n${P}Presiona Enter para continuar..."
+    read -r
 }
 
 # --- CREADOR DE ACCESO DIRECTO (.DESKTOP) ---
 crear_acceso_directo() {
-    echo -e "\n\e[1;36m[Creando Acceso Directo de Escritorio y Menú de Apps...]\e[0m"
+    clear
+    local P
+    P=$(obtener_padding)
+    echo ""
+    echo -e "${P}\e[1;36m╭────────────────────────────────────────────────────────────────────╮\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m         \e[1;32m🖥️  CREADOR DE ACCESO DIRECTO DE ESCRITORIO\e[0m                 \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m╰────────────────────────────────────────────────────────────────────╯\e[0m"
     
     mkdir -p "$HOME/.local/share/icons"
     cat <<EOF_SVG > "$ICON_PATH"
@@ -655,84 +700,91 @@ EOF_DESK
         chmod +x "$HOME/Desktop/Fix Sims 4.desktop"
     fi
 
-    echo -e "\e[1;32m✔ Acceso directo creado en tu menú de aplicaciones y en el Escritorio.\e[0m"
-    read -p "Presiona Enter para continuar..."
+    echo -e "${P}\e[1;32m✔ Acceso directo creado en tu menú de aplicaciones y en el Escritorio.\e[0m"
+    echo -ne "\n${P}Presiona Enter para continuar..."
+    read -r
 }
 
 # --- SECCIÓN ACERCA DE & CHANGELOG ---
 mostrar_acerca_de() {
     clear
-    echo -e "\e[36m====================================================\e[0m"
-    echo -e "\e[1;32m     💎 Fix Sims 4 Linux (Edición Comunitaria)      \e[0m"
-    echo -e "\e[36m====================================================\e[0m"
-    echo -e " \e[1;37mVersión:\e[0m        \e[1;32mv$VERSION\e[0m"
-    echo -e " \e[1;37mAutor:\e[0m          \e[1;36mJeff Cortez\e[0m"
-    echo -e " \e[1;37mRepositorio:\e[0m    \e[1;34mhttps://github.com/JeffCortez23/Fix_Sims_4_Linux\e[0m"
-    echo -e " \e[1;37mCompatibilidad:\e[0m \e[1;35mSteam, Steam Deck, Lutris, Bottles, Heroic, Wine\e[0m"
-    echo -e "\e[36m----------------------------------------------------\e[0m"
-    echo -e "\e[1;33m📜 Historial de Cambios (Changelog):\e[0m\n"
-    
-    echo -e "\e[1;32m[v2.1] - Nivel Dios: Diagnóstico Maestro, Caché & Multi-Lanzador\e[0m"
-    echo -e "  • 🔍 \e[1;37mGuía Oficial de Códigos de DLCs\e[0m: Incluye todos los EP (1-21), GP (1-12), SP y Kits (1-82)."
-    echo -e "  • 🧹 \e[1;37mLimpiador de Caché\e[0m (localthumbcache.package) para arreglar carga infinita."
-    echo -e "  • 🌐 \e[1;37mAuto-descarga del Unlocker\e[0m con verificación de hash SHA-256."
-    echo -e "  • 🖥️ \e[1;37mAcceso directo (.desktop)\e[0m con icono oficial Plumbob para menú y escritorio."
-    echo -e "  • 🎮 \e[1;37mSoporte Multi-Lanzador\e[0m para Lutris, Bottles, Heroic Games y Wine."
-    echo -e "  • ℹ️ \e[1;37mPanel 'Acerca de'\e[0m integrado en el script."
+    local P
+    P=$(obtener_padding)
     echo ""
-    echo -e "\e[1;32m[v2.0] - Soporte Nueva EA App & Extracción en Lote\e[0m"
-    echo -e "  • Inyección dinámica de version.dll en subdirectorios versionados (13.xxx/EA Desktop)."
-    echo -e "  • Inyección automática de Wine DllOverrides (\"version\"=\"native,builtin\") en user.reg."
-    echo -e "  • Descompresión por lotes para carpetas con múltiples .zip/.rar/.7z (Telegram/Navegador)."
-    echo -e "  • Aplanador automático de carpetas anidadas ('all in one', 'The Sims 4')."
-    echo -e "  • Compatibilidad ampliada para Steam Flatpak, Snap y MicroSD en Steam Deck."
-    echo ""
-    echo -e "\e[1;32m[v1.0] - Lanzamiento Inicial\e[0m"
-    echo -e "  • Instalación básica de DLCs, inyección en EA App y asesino de procesos fantasma."
-    
-    echo -e "\n\e[36m====================================================\e[0m"
-    read -p "Presiona Enter para volver al menú principal..."
+    echo -e "${P}\e[1;36m╭────────────────────────────────────────────────────────────────────╮\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m            \e[1;32m💎 FIX SIMS 4 LINUX (EDICIÓN COMUNITARIA)\e[0m               \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m├────────────────────────────────────────────────────────────────────┤\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m  \e[1;37mVersión:\e[0m        \e[1;32mv$VERSION\e[0m                                           \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m  \e[1;37mAutor:\e[0m          \e[1;36mJeff Cortez\e[0m                                         \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m  \e[1;37mRepositorio:\e[0m    \e[1;34mhttps://github.com/JeffCortez23/Fix_Sims_4_Linux\e[0m     \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m  \e[1;37mCompatibilidad:\e[0m \e[1;35mSteam, Steam Deck, Lutris, Bottles, Heroic, Wine\e[0m     \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m├────────────────────────────────────────────────────────────────────┤\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m  \e[1;33m📜 HISTORIAL DE CAMBIOS (CHANGELOG):\e[0m                              \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m                                                                    \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m  \e[1;32m[v2.1] - Diagnóstico Maestro, Caché, TUI & Multi-Lanzador\e[0m          \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m    • 🔍 \e[1;37mGuía Oficial de DLCs:\e[0m Todos los EP (1-21), GP (1-12), SP/Kits \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m    • 🧹 \e[1;37mLimpiador de Caché:\e[0m localthumbcache para arreglar cargas inf. \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m    • 🌐 \e[1;37mAuto-descarga Unlocker:\e[0m con verificación de hash SHA-256.     \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m    • 🖥️  \e[1;37mAcceso Directo:\e[0m .desktop e icono temático Plumbob.           \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m    • 🎮 \e[1;37mSoporte Multi-Lanzador:\e[0m Lutris, Bottles, Heroic Games y Wine. \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m    • 🎨 \e[1;37mInterfaz TUI:\e[0m Diseño centrado, estético y con bordes suaves.  \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m                                                                    \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m  \e[1;32m[v2.0] - Soporte Nueva EA App & Extracción en Lote\e[0m                 \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m    • Inyección dinámica de version.dll en subcarpetas de EA Desktop. \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m    • Inyección de DllOverrides en Wine (user.reg).                   \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m    • Descompresión por lotes para múltiples archivos comprimidos.    \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m                                                                    \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m  \e[1;32m[v1.0] - Lanzamiento Inicial\e[0m                                       \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m    • Instalación básica y asesino de procesos colgados.              \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m╰────────────────────────────────────────────────────────────────────╯\e[0m"
+    echo -ne "\n${P}Presiona Enter para volver al menú principal..."
+    read -r
 }
 
 # --- MENÚ PRINCIPAL ---
 while true; do
     clear
-    echo -e "\e[36m====================================================\e[0m"
-    echo -e "\e[1;32m    Gestor de Los Sims 4 (Linux Edition) v$VERSION       \e[0m"
-    echo -e "\e[36m====================================================\e[0m"
-    echo "1) Instalar / Mover DLCs al juego (ZIP, RAR, Lotes)"
-    echo "2) Reactivar DLCs (Inyección EA App + Wine Override)"
-    echo "3) 🔍 Diagnóstico de DLCs e Inyección (Health Check)"
-    echo "4) 🧹 Limpiar Caché del Juego (Solución Carga Infinita)"
-    echo "5) 🌐 Descargar / Actualizar EA DLC Unlocker (Auto)"
-    echo "6) 🖥️ Crear Acceso Directo (.desktop / Steam Deck)"
-    echo "7) 🔪 Forzar cierre de procesos colgados (Fix Sims/EA)"
-    echo "8) ⚙️ Reconfigurar rutas del script / Lanzador"
-    echo "9) ℹ️ Acerca de & Changelog"
-    echo "0) Salir"
-    echo -e "\e[36m====================================================\e[0m"
-    read -p "Elige una opción (0-9): " opcion
+    P=$(obtener_padding)
+    echo ""
+    echo -e "${P}\e[1;36m╭────────────────────────────────────────────────────────────────────╮\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m              \e[1;32m💎 GESTOR DE LOS SIMS 4 (LINUX EDITION) v$VERSION\e[0m        \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m            \e[2;37mSteam • Steam Deck • Lutris • Bottles • Heroic\e[0m          \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m├────────────────────────────────────────────────────────────────────┤\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m  \e[1;33m[1]\e[0m 📦 Instalar / Mover DLCs al juego (ZIP, RAR, Lotes)          \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m  \e[1;33m[2]\e[0m 🔓 Reactivar DLCs (Inyección EA App + Wine Override)         \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m  \e[1;33m[3]\e[0m 🔍 Diagnóstico de DLCs e Inyección (Health Check)            \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m  \e[1;33m[4]\e[0m 🧹 Limpiar Caché del Juego (Solución Carga Infinita)         \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m  \e[1;33m[5]\e[0m 🌐 Descargar / Actualizar EA DLC Unlocker (Automático)       \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m  \e[1;33m[6]\e[0m 🖥️  Crear Acceso Directo (.desktop / Steam Deck)              \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m  \e[1;33m[7]\e[0m 🔪 Forzar cierre de procesos colgados (Fix Sims/EA)          \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m  \e[1;33m[8]\e[0m ⚙️  Reconfigurar rutas del script / Lanzador                   \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m  \e[1;33m[9]\e[0m ℹ️  Acerca de & Changelog                                      \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m  \e[1;31m[0]\e[0m 🚪 Salir                                                     \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m╰────────────────────────────────────────────────────────────────────╯\e[0m"
+    echo ""
+    echo -ne "${P}\e[1;37m👉 Elige una opción (0-9):\e[0m "
+    read -r opcion
 
     case $opcion in
         1)
-            echo -e "\n\e[1;33m[Iniciando instalación / organización de DLCs...]\e[0m"
+            echo -e "\n${P}\e[1;33m[Iniciando instalación / organización de DLCs...]\e[0m"
             mkdir -p "$SIMS_DIR"
             
             if [ -d "$DLC_SOURCE" ]; then
                 mapfile -t ARCHIVOS_COMPRIMIDOS < <(find "$DLC_SOURCE" -maxdepth 1 -type f \( -iname "*.zip" -o -iname "*.rar" -o -iname "*.7z" \) | sort)
                 
                 if [ ${#ARCHIVOS_COMPRIMIDOS[@]} -gt 0 ]; then
-                    echo -e "\e[1;36mSe detectaron ${#ARCHIVOS_COMPRIMIDOS[@]} archivos comprimidos en la carpeta.\e[0m"
-                    echo "Descomprimiendo cada paquete en $SIMS_DIR..."
+                    echo -e "${P}\e[1;36mSe detectaron ${#ARCHIVOS_COMPRIMIDOS[@]} archivos comprimidos en la carpeta.\e[0m"
+                    echo -e "${P}Descomprimiendo cada paquete en $SIMS_DIR..."
                     
                     for i in "${!ARCHIVOS_COMPRIMIDOS[@]}"; do
                         arch="${ARCHIVOS_COMPRIMIDOS[$i]}"
-                        echo -e "[$((i+1))/${#ARCHIVOS_COMPRIMIDOS[@]}] Extrayendo: \e[1;37m$(basename "$arch")\e[0m..."
+                        echo -e "${P}[$((i+1))/${#ARCHIVOS_COMPRIMIDOS[@]}] Extrayendo: \e[1;37m$(basename "$arch")\e[0m..."
                         7z x "$arch" -o"$SIMS_DIR" -y > /dev/null
                     done
                 fi
 
-                echo "Copiando y organizando carpetas y archivos directos..."
+                echo -e "${P}Copiando y organizando carpetas y archivos directos..."
                 for item in "$DLC_SOURCE"/*; do
                     [ -e "$item" ] || continue
                     case "$item" in
@@ -742,50 +794,54 @@ while true; do
                 done
 
                 arreglar_estructura_dlcs "$SIMS_DIR"
-                echo -e "\n\e[1;32m¡Instalación y organización de DLCs completada!\e[0m"
+                echo -e "\n${P}\e[1;32m¡Instalación y organización de DLCs completada!\e[0m"
                 
             elif [ -f "$DLC_SOURCE" ]; then
                 if ! command -v 7z &> /dev/null; then
-                    echo -e "\e[31m¡Error! No tienes '7z' instalado en tu sistema.\e[0m"
-                    read -p "Presiona Enter para continuar..."
+                    echo -e "\n${P}\e[31m¡Error! No tienes '7z' instalado en tu sistema.\e[0m"
+                    echo -ne "\n${P}Presiona Enter para continuar..."
+                    read -r
                     continue
                 fi
-                echo "Modo Archivo único detectado. Descomprimiendo en $SIMS_DIR..."
+                echo -e "${P}Modo Archivo único detectado. Descomprimiendo en $SIMS_DIR..."
                 7z x "$DLC_SOURCE" -o"$SIMS_DIR" -y
                 arreglar_estructura_dlcs "$SIMS_DIR"
-                echo -e "\n\e[1;32m¡Extracción y organización terminada!\e[0m"
+                echo -e "\n${P}\e[1;32m¡Extracción y organización terminada!\e[0m"
                 
             else
-                echo -e "\e[33mAviso: No se encontró archivo o carpeta en '$DLC_SOURCE'.\e[0m"
-                echo "Revisando y organizando DLCs ya presentes en la carpeta del juego..."
+                echo -e "\n${P}\e[33mAviso: No se encontró archivo o carpeta en '$DLC_SOURCE'.\e[0m"
+                echo -e "${P}Revisando y organizando DLCs ya presentes en la carpeta del juego..."
                 arreglar_estructura_dlcs "$SIMS_DIR"
             fi
 
             COUNT=$(ls -d "$SIMS_DIR"/[EGDFS]* 2>/dev/null | grep -E '/(EP|GP|SP|FP)[0-9]+' | wc -l)
-            echo -e "\n\e[1;32mTotal de carpetas de DLCs listas en el juego: $COUNT\e[0m"
-            read -p "Presiona Enter para continuar..."
+            echo -e "\n${P}\e[1;32mTotal de carpetas de DLCs listas en el juego: $COUNT\e[0m"
+            echo -ne "\n${P}Presiona Enter para continuar..."
+            read -r
             ;;
             
         2)
-            echo -e "\n\e[1;34m[Arrancando inyección de DLCs Unlocker...]\e[0m"
+            echo -e "\n${P}\e[1;34m[Arrancando inyección de DLCs Unlocker...]\e[0m"
             
             if ! localizar_archivos_unlocker; then
-                echo -e "\e[31m¡Error! No se encontraron los archivos del Unlocker.\e[0m"
-                echo "Usa la Opción 5 para descargarlos automáticamente con un solo clic."
-                read -p "Presiona Enter para continuar..."
+                echo -e "\n${P}\e[31m¡Error! No se encontraron los archivos del Unlocker.\e[0m"
+                echo -e "${P}Usa la Opción 5 para descargarlos automáticamente con un solo clic."
+                echo -ne "\n${P}Presiona Enter para continuar..."
+                read -r
                 continue
             fi
 
-            echo -e "Usando archivos del Unlocker desde: \e[36m$(dirname "$UNLOCKER_INI")\e[0m"
+            echo -e "${P}Usando archivos del Unlocker desde: \e[36m$(dirname "$UNLOCKER_INI")\e[0m"
 
             if [ ! -d "$PREFIX" ]; then
-                echo -e "\e[31m¡Error! No se encontró el prefijo de Wine/Proton en: $PREFIX\e[0m"
-                echo "Asegúrate de haber iniciado el juego al menos una vez."
-                read -p "Presiona Enter para continuar..."
+                echo -e "\n${P}\e[31m¡Error! No se encontró el prefijo de Wine/Proton en: $PREFIX\e[0m"
+                echo -e "${P}Asegúrate de haber iniciado el juego al menos una vez."
+                echo -ne "\n${P}Presiona Enter para continuar..."
+                read -r
                 continue
             fi
 
-            echo "Localizando ejecutables de EA Desktop..."
+            echo -e "${P}Localizando ejecutables de EA Desktop..."
             EA_BASE="$PREFIX/drive_c/Program Files/Electronic Arts/EA Desktop"
             INJECTED_COUNT=0
 
@@ -794,22 +850,22 @@ while true; do
                 
                 while read -r target_dir; do
                     if [ -d "$target_dir" ]; then
-                        echo "Inyectando en: $target_dir"
+                        echo -e "${P}Inyectando en: $target_dir"
                         cp -v "$UNLOCKER_DLL" "$target_dir/version.dll"
                         ((INJECTED_COUNT++))
                     fi
                 done < <(find "$EA_BASE" -type f \( -iname "EADesktop.exe" -o -iname "EABackgroundService.exe" \) -exec dirname {} \; | sort -u)
             else
                 while read -r target_dir; do
-                    echo "Inyectando en: $target_dir"
+                    echo -e "${P}Inyectando en: $target_dir"
                     cp -v "$UNLOCKER_DLL" "$target_dir/version.dll"
                     ((INJECTED_COUNT++))
                 done < <(find "$PREFIX/drive_c" -type f \( -iname "EADesktop.exe" -o -iname "EABackgroundService.exe" \) -exec dirname {} \; | sort -u)
             fi
 
-            echo -e "\e[32m✔ version.dll inyectado en $INJECTED_COUNT ubicaciones.\e[0m"
+            echo -e "${P}\e[32m✔ version.dll inyectado en $INJECTED_COUNT ubicaciones.\e[0m"
 
-            echo "Copiando configuraciones del Unlocker a AppData..."
+            echo -e "${P}Copiando configuraciones del Unlocker a AppData..."
             USERS_DIR="$PREFIX/drive_c/users"
             if [ -d "$USERS_DIR" ]; then
                 for u in "$USERS_DIR"/*; do
@@ -824,16 +880,17 @@ while true; do
 
             aplicar_dll_override "$USER_REG"
 
-            echo "Limpiando cachés de EA App..."
+            echo -e "${P}Limpiando cachés de EA App..."
             rm -rf "$PREFIX/drive_c/users"/*/AppData/Local/Electronic\ Arts/EA\ Desktop 2>/dev/null
             rm -rf "$PREFIX/drive_c/users"/*/AppData/Local/EADesktop 2>/dev/null
             rm -rf "$PREFIX/drive_c/users"/*/AppData/Local/Origin 2>/dev/null
             
-            echo -e "\n\e[1;32m====================================================\e[0m"
-            echo -e "\e[1;32m ¡DLCs Y UNLOCKER ACTIVADOS CON ÉXITO!              \e[0m"
-            echo -e "\e[1;32m====================================================\e[0m"
-            echo "Ya puedes iniciar Los Sims 4 normalmente."
-            read -p "Presiona Enter para continuar..."
+            echo -e "\n${P}\e[1;32m╭────────────────────────────────────────────────────────────────────╮\e[0m"
+            echo -e "${P}\e[1;32m│\e[0m               \e[1;32m¡DLCS Y UNLOCKER ACTIVADOS CON ÉXITO!\e[0m                \e[1;32m│\e[0m"
+            echo -e "${P}\e[1;32m╰────────────────────────────────────────────────────────────────────╯\e[0m"
+            echo -e "${P}Ya puedes iniciar Los Sims 4 normalmente."
+            echo -ne "\n${P}Presiona Enter para continuar..."
+            read -r
             ;;
 
         3)
@@ -853,15 +910,16 @@ while true; do
             ;;
 
         7)
-            echo -e "\n\e[1;31m[Aniquilando procesos fantasma...]\e[0m"
+            echo -e "\n${P}\e[1;31m[Aniquilando procesos fantasma...]\e[0m"
             pkill -9 -u "$USER" -f "steam-runtime-reaper" > /dev/null 2>&1
             pkill -9 -u "$USER" -f "steam-launch-wrapper" > /dev/null 2>&1
             pkill -9 -u "$USER" -f "EABackgroundService" > /dev/null 2>&1
             pkill -9 -u "$USER" -f "EADesktop.exe" > /dev/null 2>&1
             pkill -9 -u "$USER" -f "TS4_x64.exe" > /dev/null 2>&1
             pkill -9 -u "$USER" -f "Link2EA.exe" > /dev/null 2>&1
-            echo -e "\e[1;32m¡Limpieza completada! El botón de Steam debería reaccionar.\e[0m"
-            read -p "Presiona Enter para continuar..."
+            echo -e "${P}\e[1;32m✔ ¡Limpieza completada! El botón de Steam debería reaccionar.\e[0m"
+            echo -ne "\n${P}Presiona Enter para continuar..."
+            read -r
             ;;
             
         8)
@@ -881,12 +939,16 @@ while true; do
             ;;
 
         0)
-            echo "¡Que disfrutes jugando Los Sims 4!"
+            clear
+            P=$(obtener_padding)
+            echo ""
+            echo -e "${P}\e[1;32m💎 ¡Que disfrutes jugando Los Sims 4 en Linux!\e[0m"
+            echo ""
             exit 0
             ;;
             
         *)
-            echo -e "\e[31mOpción no válida.\e[0m"
+            echo -e "\n${P}\e[31mOpción no válida.\e[0m"
             sleep 1
             ;;
     esac
