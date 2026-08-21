@@ -463,18 +463,18 @@ aplicar_dll_override() {
     fi
 
     if grep -q '"version"="native,builtin"' "$reg_file"; then
-        echo -e "${P}\e[32m✔ Override de version.dll ya está registrado en el registro de Wine.\e[0m"
+        echo -e "${P}  \e[1;32m✔\e[0m Wine DllOverrides ya registrado (\x27version\x27=\x27native,builtin\x27)"
         return 0
     fi
 
-    echo -e "${P}Añadiendo DllOverride para version.dll en Wine..."
+    echo -e "${P}  Añadiendo DllOverride para version.dll en Wine..."
     timestamp=$(date +%s)
     cat <<EOF >> "$reg_file"
 
 [Software\\\\Wine\\\\DllOverrides] $timestamp
 "version"="native,builtin"
 EOF
-    echo -e "${P}\e[32m✔ DllOverride añadido exitosamente a $reg_file\e[0m"
+    echo -e "${P}  \e[1;32m✔\e[0m DllOverride añadido exitosamente a user.reg"
 }
 
 # --- ORGANIZAR DLCS (Aplanador) ---
@@ -861,7 +861,7 @@ while true; do
                     [ -e "$item" ] || continue
                     case "$item" in
                         *.zip|*.rar|*.7z|*.ZIP|*.RAR|*.7Z) ;;
-                        *) cp -av "$item" "$SIMS_DIR/" 2>/dev/null ;;
+                        *) cp -a "$item" "$SIMS_DIR/" 2>/dev/null ;;
                     esac
                 done
 
@@ -902,7 +902,7 @@ while true; do
                 continue
             fi
 
-            echo -e "${P}Usando archivos del Unlocker desde: \e[36m$(dirname "$UNLOCKER_INI")\e[0m"
+            echo -e "${P}  \e[1;37m• Origen del Unlocker:\e[0m \e[36m$(dirname "$UNLOCKER_INI")\e[0m"
 
             if [ ! -d "$PREFIX" ]; then
                 echo -e "\n${P}\e[31m¡Error! No se encontró el prefijo de Wine/Proton en: $PREFIX\e[0m"
@@ -912,53 +912,52 @@ while true; do
                 continue
             fi
 
-            echo -e "${P}Localizando ejecutables de EA Desktop..."
+            echo -e "${P}  \e[1;37m• Localizando ejecutables de EA Desktop...\e[0m"
             EA_BASE="$PREFIX/drive_c/Program Files/Electronic Arts/EA Desktop"
             INJECTED_COUNT=0
 
             if [ -d "$EA_BASE" ]; then
-                cp -v "$UNLOCKER_DLL" "$EA_BASE/version.dll" 2>/dev/null && ((INJECTED_COUNT++))
+                cp "$UNLOCKER_DLL" "$EA_BASE/version.dll" 2>/dev/null && ((INJECTED_COUNT++))
                 
                 while read -r target_dir; do
                     if [ -d "$target_dir" ]; then
-                        echo -e "${P}Inyectando en: $target_dir"
-                        cp -v "$UNLOCKER_DLL" "$target_dir/version.dll"
+                        cp "$UNLOCKER_DLL" "$target_dir/version.dll" 2>/dev/null
                         ((INJECTED_COUNT++))
                     fi
                 done < <(find "$EA_BASE" -type f \( -iname "EADesktop.exe" -o -iname "EABackgroundService.exe" \) -exec dirname {} \; | sort -u)
             else
                 while read -r target_dir; do
-                    echo -e "${P}Inyectando en: $target_dir"
-                    cp -v "$UNLOCKER_DLL" "$target_dir/version.dll"
+                    cp "$UNLOCKER_DLL" "$target_dir/version.dll" 2>/dev/null
                     ((INJECTED_COUNT++))
                 done < <(find "$PREFIX/drive_c" -type f \( -iname "EADesktop.exe" -o -iname "EABackgroundService.exe" \) -exec dirname {} \; | sort -u)
             fi
 
-            echo -e "${P}\e[32m✔ version.dll inyectado en $INJECTED_COUNT ubicaciones.\e[0m"
+            echo -e "${P}  \e[1;32m✔\e[0m version.dll inyectado en $INJECTED_COUNT ubicaciones de EA App"
 
-            echo -e "${P}Copiando configuraciones del Unlocker a AppData..."
             USERS_DIR="$PREFIX/drive_c/users"
             if [ -d "$USERS_DIR" ]; then
                 for u in "$USERS_DIR"/*; do
                     if [ -d "$u" ] && [ "$(basename "$u")" != "Public" ]; then
                         TARGET_CONF="$u/AppData/Roaming/anadius/EA DLC Unlocker v2"
                         mkdir -p "$TARGET_CONF"
-                        cp -v "$UNLOCKER_INI" "$TARGET_CONF/config.ini"
-                        cp -v "$UNLOCKER_GAME_INI" "$TARGET_CONF/g_LOS SIMS 4.ini"
+                        cp "$UNLOCKER_INI" "$TARGET_CONF/config.ini" 2>/dev/null
+                        cp "$UNLOCKER_GAME_INI" "$TARGET_CONF/g_LOS SIMS 4.ini" 2>/dev/null
                     fi
                 done
             fi
+            echo -e "${P}  \e[1;32m✔\e[0m Configuraciones de DLCs registradas en AppData"
 
             aplicar_dll_override "$USER_REG"
 
-            echo -e "${P}Limpiando cachés de EA App..."
+            # Limpiar cachés
             rm -rf "$PREFIX/drive_c/users"/*/AppData/Local/Electronic\ Arts/EA\ Desktop 2>/dev/null
             rm -rf "$PREFIX/drive_c/users"/*/AppData/Local/EADesktop 2>/dev/null
             rm -rf "$PREFIX/drive_c/users"/*/AppData/Local/Origin 2>/dev/null
+            echo -e "${P}  \e[1;32m✔\e[0m Caché temporal de EA App purgada"
             
-            echo -e "\n${P}\e[1;32m────────────────────────────────────────────────────────────────\e[0m"
-            echo -e "${P}\e[1;32m               ¡DLCS Y UNLOCKER ACTIVADOS CON ÉXITO!            \e[0m"
-            echo -e "${P}\e[1;32m────────────────────────────────────────────────────────────────\e[0m"
+            echo -e "\n${P}\e[1;36m────────────────────────────────────────────────────────────────\e[0m"
+            echo -e "${P}\e[1;32m             ¡DLCS Y UNLOCKER ACTIVADOS CON ÉXITO!              \e[0m"
+            echo -e "${P}\e[1;36m────────────────────────────────────────────────────────────────\e[0m"
             echo -e "${P}Ya puedes iniciar Los Sims 4 normalmente."
             echo -ne "\n${P}Presiona Enter para continuar..."
             read -r
