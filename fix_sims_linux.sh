@@ -211,7 +211,7 @@ localizar_archivos_unlocker() {
         fi
     fi
 
-    # 2. Rutas candidatas automáticas (carpeta del script, almacén, descargas, escritorio)
+    # 2. Rutas candidatas automáticas (carpeta del script, subcarpetas, descargas, escritorio, pendrives montados)
     CANDIDATOS=(
         "$SCRIPT_DIR"
         "$SCRIPT_DIR/EA DLC Unlocker v3.4"
@@ -252,6 +252,7 @@ localizar_archivos_unlocker() {
     P=$(obtener_padding)
     echo -e "\n${P}\e[1;33m[Aviso: No se encontraron los archivos del Unlocker en rutas estándar]\e[0m"
     echo -e "${P}\e[1;34m💡 PRO-TIP:\e[0m Arrastra aquí la carpeta donde guardas tu Unlocker"
+    echo -e "${P}(desde tu disco, pendrive, carpeta Descargas, etc.)"
     echo -e "${P}o presiona \e[1;32m[Enter]\e[0m para descargarlos automáticamente ahora mismo."
     echo -ne "${P}\e[1;37mRuta del Unlocker:\e[0m "
     read -r custom_unlocker
@@ -413,6 +414,14 @@ configurar_rutas() {
     input_dlc="${input_dlc//\'/}"
     input_dlc="${input_dlc%"${input_dlc##*[![:space:]]}"}"
     DLC_SOURCE="${input_dlc}"
+
+    echo -e "\n${P}\e[1;32mOpcional:\e[0m ¿Dónde tienes los archivos del EA DLC Unlocker?"
+    echo -e "${P}\e[1;34m💡 PRO-TIP:\e[0m Arrastra tu carpeta de Unlocker o presiona \e[1;32m[Enter]\e[0m para auto-detectar/descargar."
+    echo -ne "${P}> "
+    read -r input_unlocker
+    input_unlocker="${input_unlocker//\'/}"
+    input_unlocker="${input_unlocker%"${input_unlocker##*[![:space:]]}"}"
+    UNLOCKER_SOURCE="${input_unlocker}"
 
     mkdir -p "$HOME/.config"
     cat <<EOF > "$CONFIG_FILE"
