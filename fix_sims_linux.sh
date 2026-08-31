@@ -669,7 +669,29 @@ diagnosticar_dlcs() {
         fi
     done
 
-    local total_general=$(( ${#LISTA_EP[@]} + ${#LISTA_GP[@]} + ${#LISTA_SP_ACC[@]} + ${#LISTA_KITS[@]} ))
+    # 6. Detección Dinámica de Nuevos DLCs (Futuros Packs lanzados por Maxis/EA)
+    local nuevos_dlcs=()
+    while read -r dlc_dir; do
+        [ -n "$dlc_dir" ] || continue
+        local b_code
+        b_code="$(basename "$dlc_dir")"
+        # Si no estaba en las listas maestras predefinidas
+        if [[ ! " ${LISTA_EP[*]} ${LISTA_GP[*]} ${LISTA_SP_ACC[*]} ${LISTA_KITS[*]} " =~ " ${b_code} " ]]; then
+            nuevos_dlcs+=("$b_code")
+        fi
+    done < <(find "$SIMS_DIR" -maxdepth 1 -type d | grep -E '/(EP|GP|SP|FP)[0-9]+' | sort -V)
+
+    if [ ${#nuevos_dlcs[@]} -gt 0 ]; then
+        echo -e "\n${P}\e[1;35m--- ✨ Nuevos Packs / DLCs Futuros Detectados (${#nuevos_dlcs[@]}) ---\e[0m"
+        for code in "${nuevos_dlcs[@]}"; do
+            size=$(du -sh "$SIMS_DIR/$code" 2>/dev/null | awk '{print $1}')
+            nombre=$(obtener_nombre_dlc "$code")
+            echo -e "${P}  \e[1;32m[✔ INSTALADO]\e[0m \e[1;35m$code\e[0m: $nombre \e[36m($size)\e[0m"
+            ((total_instalados++))
+        done
+    fi
+
+    local total_general=$(( ${#LISTA_EP[@]} + ${#LISTA_GP[@]} + ${#LISTA_SP_ACC[@]} + ${#LISTA_KITS[@]} + ${#nuevos_dlcs[@]} ))
 
     echo -e "\n${P}\e[1;36m────────────────────────────────────────────────────────────────\e[0m"
     echo -e "${P}\e[1;32m📊 RESUMEN GENERAL DE DLCS:\e[0m"
