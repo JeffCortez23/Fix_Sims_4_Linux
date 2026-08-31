@@ -892,9 +892,9 @@ while true; do
                     echo -e "${P}\e[1;36mSe detectaron ${#ARCHIVOS_COMPRIMIDOS[@]} paquetes en la carpeta de descargas.\e[0m"
                     echo -e "${P}Analizando e instalando packs faltantes en: \e[36m$SIMS_DIR\e[0m\n"
                     
-                    local extraidos=0
-                    local omitidos=0
-                    local errores=0
+                    extraidos=0
+                    omitidos=0
+                    errores=0
 
                     for i in "${!ARCHIVOS_COMPRIMIDOS[@]}"; do
                         arch="${ARCHIVOS_COMPRIMIDOS[$i]}"
