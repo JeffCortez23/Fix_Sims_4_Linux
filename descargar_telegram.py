@@ -21,6 +21,8 @@ except ImportError:
     sys.exit(1)
 
 # Configuración predeterminada
+DEFAULT_API_ID = 38972472
+DEFAULT_API_HASH = "5388070139a9ca5261da9f8c5e624bda"
 DEFAULT_CHAT_ID = -1003910223807  # ID numérico de https://t.me/c/3910223807
 DEFAULT_TOPIC_ID = 9              # Tema / Topic 9
 DEFAULT_OUTPUT_DIR = Path.home() / "Downloads" / "Sims4_Telegram_DLCs"
@@ -83,22 +85,8 @@ async def main():
     print(f"📥 Carpeta de descargas:       \033[36m{DEFAULT_OUTPUT_DIR}\033[0m\n")
 
     # Credenciales de Telegram
-    api_id_env = os.environ.get("TG_API_ID")
-    api_hash_env = os.environ.get("TG_API_HASH")
-
-    if not api_id_env:
-        api_id_str = input("Introduce tu API ID: ").strip()
-        if not api_id_str.isdigit():
-            print("API ID inválido.")
-            return
-        api_id = int(api_id_str)
-    else:
-        api_id = int(api_id_env)
-
-    if not api_hash_env:
-        api_hash = input("Introduce tu API HASH: ").strip()
-    else:
-        api_hash = api_hash_env
+    api_id = int(os.environ.get("TG_API_ID", DEFAULT_API_ID))
+    api_hash = os.environ.get("TG_API_HASH", DEFAULT_API_HASH)
 
     session_path = Path.home() / ".config" / "telegram_sims_downloader"
     session_path.mkdir(parents=True, exist_ok=True)
