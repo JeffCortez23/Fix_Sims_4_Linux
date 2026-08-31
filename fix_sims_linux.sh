@@ -522,7 +522,9 @@ else
     SIMS_DIR="$STEAM_LIBRARY/steamapps/common/The Sims 4"
 fi
 
-if [ -d "$STEAM_COMPATDATA/pfx" ]; then
+if [ -f "$STEAM_COMPATDATA/user.reg" ] || [ -d "$STEAM_COMPATDATA/drive_c" ]; then
+    PREFIX="$STEAM_COMPATDATA"
+elif [ -d "$STEAM_COMPATDATA/pfx" ]; then
     PREFIX="$STEAM_COMPATDATA/pfx"
 elif [ -d "$STEAM_COMPATDATA/steamapps/compatdata/1222670/pfx" ]; then
     PREFIX="$STEAM_COMPATDATA/steamapps/compatdata/1222670/pfx"
@@ -1075,10 +1077,21 @@ while true; do
             source "$CONFIG_FILE"
             if [ -d "$STEAM_LIBRARY/steamapps/common/The Sims 4" ]; then
                 SIMS_DIR="$STEAM_LIBRARY/steamapps/common/The Sims 4"
-            else
+            elif [ -d "$STEAM_LIBRARY" ] && [[ "$STEAM_LIBRARY" =~ (The Sims 4|Los Sims 4) ]]; then
                 SIMS_DIR="$STEAM_LIBRARY"
+            else
+                SIMS_DIR="$STEAM_LIBRARY/steamapps/common/The Sims 4"
             fi
-            PREFIX="$STEAM_COMPATDATA/steamapps/compatdata/1222670/pfx"
+
+            if [ -f "$STEAM_COMPATDATA/user.reg" ] || [ -d "$STEAM_COMPATDATA/drive_c" ]; then
+                PREFIX="$STEAM_COMPATDATA"
+            elif [ -d "$STEAM_COMPATDATA/pfx" ]; then
+                PREFIX="$STEAM_COMPATDATA/pfx"
+            elif [ -d "$STEAM_COMPATDATA/steamapps/compatdata/1222670/pfx" ]; then
+                PREFIX="$STEAM_COMPATDATA/steamapps/compatdata/1222670/pfx"
+            else
+                PREFIX="$STEAM_COMPATDATA"
+            fi
             USER_REG="$PREFIX/user.reg"
             ;;
 
