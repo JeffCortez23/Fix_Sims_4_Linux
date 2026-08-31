@@ -917,9 +917,9 @@ while true; do
                             continue
                         fi
 
-                        # 3. Descomprimir pack faltante de forma limpia
+                        # 3. Descomprimir pack faltante con progreso visual
                         echo -e "${P}[$((i+1))/${#ARCHIVOS_COMPRIMIDOS[@]}] \e[1;36m[📦 Extrayendo]\e[0m    \e[1;37m$base_arch\e[0m..."
-                        7z x "$arch" -o"$SIMS_DIR" -y > /dev/null 2>&1
+                        7z x "$arch" -o"$SIMS_DIR" -y -bsp1
                         ((extraidos++))
                     done
 
@@ -949,8 +949,8 @@ while true; do
                     read -r
                     continue
                 fi
-                echo -e "${P}Modo Archivo único detectado. Descomprimiendo en $SIMS_DIR..."
-                7z x "$DLC_SOURCE" -o"$SIMS_DIR" -y > /dev/null 2>&1
+                echo -e "${P}Modo Archivo único detectado. Descomprimiendo en: \e[36m$SIMS_DIR\e[0m\n"
+                7z x "$DLC_SOURCE" -o"$SIMS_DIR" -y -bsp1
                 arreglar_estructura_dlcs "$SIMS_DIR"
                 echo -e "\n${P}\e[1;32m¡Extracción y organización terminada!\e[0m"
                 
