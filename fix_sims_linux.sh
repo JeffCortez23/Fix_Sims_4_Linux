@@ -174,6 +174,9 @@ obtener_nombre_dlc() {
         SP80) echo "Sala de Música" ;;
         SP81) echo "Sueños Silvestres" ;;
         SP82) echo "El Patio de mi Casa" ;;
+        SP83) echo "Cápsula Chicas Pesadas (Mean Girls)" ;;
+        SP84) echo "Cápsula Fuera de Onda (Clueless)" ;;
+        SP87) echo "Cápsula Coach RePurposed" ;;
         
         *) echo "Pack / Kit ($code)" ;;
     esac
@@ -187,7 +190,7 @@ LISTA_KITS=(
     FP01 SP20 SP21 SP22 SP23 SP24 SP25 SP26 SP28 SP29 SP30 SP31 SP32 SP33 SP34 SP35 SP36 SP37 SP38
     SP39 SP40 SP41 SP42 SP43 SP44 SP45 SP47 SP48 SP50 SP51 SP52 SP53 SP54 SP55 SP56 SP57 SP58
     SP59 SP60 SP61 SP62 SP63 SP64 SP65 SP66 SP67 SP68 SP69 SP70 SP71 SP72 SP73 SP74 SP75 SP76
-    SP77 SP78 SP79 SP80 SP81 SP82
+    SP77 SP78 SP79 SP80 SP81 SP82 SP83 SP84 SP87
 )
 
 # --- AUTO-DESCARGADOR DE UNLOCKER (CON HEADERS Y VERIFICACIÓN SHA-256) ---
