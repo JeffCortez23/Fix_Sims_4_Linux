@@ -11,7 +11,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 CONFIG_FILE="$HOME/.config/sims4_gestor.conf"
 UNLOCKER_STORE="$HOME/.local/share/sims4_unlocker"
 ICON_PATH="$HOME/.local/share/icons/fix-sims-4.svg"
-VERSION="2.1"
+VERSION="2.2"
 
 # --- UTILIDADES DE CENTRADO Y ESTILO TUI ---
 WIDTH=64
@@ -579,6 +579,51 @@ arreglar_estructura_dlcs() {
     done
 }
 
+# --- ABRIR CARPETA MODS DE LOS SIMS 4 ---
+abrir_carpeta_mods_ts4() {
+    clear
+    local P
+    P=$(obtener_padding)
+    echo -e "\n\n"
+    echo -e "${P}\e[1;36m╭──────────────────────────────────────────────────────────────╮\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m            \e[1;33m📂 ABRIR CARPETA MODS (LOS SIMS 4)\e[0m                \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m╰──────────────────────────────────────────────────────────────╯\e[0m\n"
+
+    local CANDIDATOS_DOCS=(
+        "$PREFIX/drive_c/users/steamuser/Documents/Electronic Arts/The Sims 4"
+        "$PREFIX/drive_c/users/$USER/Documents/Electronic Arts/The Sims 4"
+        "$HOME/Documents/Electronic Arts/The Sims 4"
+        "$HOME/.local/share/Steam/steamapps/compatdata/1222670/pfx/drive_c/users/steamuser/Documents/Electronic Arts/The Sims 4"
+    )
+
+    local target_mods=""
+    for doc in "${CANDIDATOS_DOCS[@]}"; do
+        if [ -d "$doc" ]; then
+            target_mods="$doc/Mods"
+            break
+        fi
+    done
+
+    if [ -z "$target_mods" ]; then
+        target_mods="$PREFIX/drive_c/users/steamuser/Documents/Electronic Arts/The Sims 4/Mods"
+    fi
+
+    mkdir -p "$target_mods"
+    echo -e "${P}Abriendo carpeta de Mods en el gestor de archivos..."
+    echo -e "${P}Ruta: \e[36m$target_mods\e[0m\n"
+
+    if command -v xdg-open &> /dev/null; then
+        xdg-open "$target_mods" >/dev/null 2>&1 &
+        echo -e "${P}\e[1;32m✔ ¡Carpeta de Mods abierta con éxito!\e[0m"
+    else
+        echo -e "${P}\e[1;33mNo se detectó xdg-open. Puedes acceder manualmente a la ruta:\e[0m"
+        echo -e "${P}\e[36m$target_mods\e[0m"
+    fi
+
+    echo -ne "\n${P}Presiona Enter para volver al menú principal..."
+    read -r
+}
+
 # --- INSPECTOR Y DIAGNÓSTICO DE DLCS ---
 diagnosticar_dlcs() {
     clear
@@ -839,6 +884,8 @@ mostrar_acerca_de() {
     echo -e "${P}  \e[1;37m• Compatibilidad:\e[0m \e[1;35mSteam, Steam Deck, Lutris, Bottles, Heroic, Wine\e[0m"
     echo -e "\n${P}\e[1;36m────────────────────────────────────────────────────────────────\e[0m"
     echo -e "${P}\e[1;33m📜 HISTORIAL DE CAMBIOS (CHANGELOG):\e[0m\n"
+    echo -e "${P}  \e[1;32m[v2.2] - Acceso Rápido a Mods & Compatibilidad Refinada\e[0m"
+    echo -e "${P}    • 📂 \e[1;37mAbrir Carpeta Mods:\e[0m Acceso directo en el explorador de archivos nativo."
     echo -e "${P}  \e[1;32m[v2.1] - Diagnóstico Maestro, Caché, TUI & Multi-Lanzador\e[0m"
     echo -e "${P}    • 🔍 \e[1;37mGuía Oficial de DLCs:\e[0m Todos los EP (1-21), GP (1-12), SP y Kits."
     echo -e "${P}    • 🧹 \e[1;37mLimpiador de Caché:\e[0m localthumbcache para cargas infinitas."
@@ -869,17 +916,18 @@ while true; do
     echo ""
     echo -e "${P}  \e[1;33m[1]\e[0m 📦  \e[1;37mInstalar / Mover DLCs al juego\e[0m \e[2;37m(ZIP, RAR, Lotes)\e[0m"
     echo -e "${P}  \e[1;33m[2]\e[0m 🔓  \e[1;37mReactivar DLCs\e[0m \e[2;37m(Inyección EA App + Wine Override)\e[0m"
-    echo -e "${P}  \e[1;33m[3]\e[0m 🔍  \e[1;37mDiagnóstico de DLCs e Inyección\e[0m \e[2;37m(Health Check)\e[0m"
-    echo -e "${P}  \e[1;33m[4]\e[0m 🧹  \e[1;37mLimpiar Caché del Juego\e[0m \e[2;37m(Solución Carga Infinita)\e[0m"
-    echo -e "${P}  \e[1;33m[5]\e[0m 🌐  \e[1;37mDescargar / Actualizar EA DLC Unlocker\e[0m \e[2;37m(Auto)\e[0m"
-    echo -e "${P}  \e[1;33m[6]\e[0m 🖥️   \e[1;37mCrear Acceso Directo\e[0m \e[2;37m(.desktop / Steam Deck)\e[0m"
-    echo -e "${P}  \e[1;33m[7]\e[0m 🔪  \e[1;37mForzar cierre de procesos colgados\e[0m \e[2;37m(Fix Sims/EA)\e[0m"
-    echo -e "${P}  \e[1;33m[8]\e[0m ⚙️   \e[1;37mReconfigurar rutas del script / Lanzador\e[0m"
-    echo -e "${P}  \e[1;33m[9]\e[0m ℹ️   \e[1;37mAcerca de & Changelog\e[0m"
+    echo -e "${P}  \e[1;33m[3]\e[0m 📂  \e[1;37mAbrir carpeta Mods del juego\e[0m \e[2;37m(Mods / CC)\e[0m"
+    echo -e "${P}  \e[1;33m[4]\e[0m 🔍  \e[1;37mDiagnóstico de DLCs e Inyección\e[0m \e[2;37m(Health Check)\e[0m"
+    echo -e "${P}  \e[1;33m[5]\e[0m 🧹  \e[1;37mLimpiar Caché del Juego\e[0m \e[2;37m(Solución Carga Infinita)\e[0m"
+    echo -e "${P}  \e[1;33m[6]\e[0m 🌐  \e[1;37mDescargar / Actualizar EA DLC Unlocker\e[0m \e[2;37m(Auto)\e[0m"
+    echo -e "${P}  \e[1;33m[7]\e[0m 🖥️   \e[1;37mCrear Acceso Directo\e[0m \e[2;37m(.desktop / Steam Deck)\e[0m"
+    echo -e "${P}  \e[1;33m[8]\e[0m 🔪  \e[1;37mForzar cierre de procesos colgados\e[0m \e[2;37m(Fix Sims/EA)\e[0m"
+    echo -e "${P}  \e[1;33m[9]\e[0m ⚙️   \e[1;37mReconfigurar rutas del script / Lanzador\e[0m"
+    echo -e "${P}  \e[1;33m[10]\e[0m ℹ️  \e[1;37mAcerca de & Changelog\e[0m"
     echo -e "${P}  \e[1;31m[0]\e[0m 🚪  \e[1;37mSalir\e[0m"
     echo ""
     echo -e "${P}\e[1;36m────────────────────────────────────────────────────────────────\e[0m"
-    echo -ne "${P}\e[1;33m👉 Elige una opción (0-9):\e[0m "
+    echo -ne "${P}\e[1;33m👉 Elige una opción (0-10):\e[0m "
     read -r opcion
 
     case $opcion in
@@ -1044,22 +1092,26 @@ while true; do
             ;;
 
         3)
-            diagnosticar_dlcs
+            abrir_carpeta_mods_ts4
             ;;
 
         4)
-            limpiar_cache_juego
+            diagnosticar_dlcs
             ;;
 
         5)
-            descargar_unlocker_auto
+            limpiar_cache_juego
             ;;
 
         6)
-            crear_acceso_directo
+            descargar_unlocker_auto
             ;;
 
         7)
+            crear_acceso_directo
+            ;;
+
+        8)
             echo -e "\n${P}\e[1;31m[Aniquilando procesos fantasma...]\e[0m"
             pkill -9 -u "$USER" -f "steam-runtime-reaper" > /dev/null 2>&1
             pkill -9 -u "$USER" -f "steam-launch-wrapper" > /dev/null 2>&1
@@ -1072,7 +1124,7 @@ while true; do
             read -r
             ;;
             
-        8)
+        9)
             configurar_rutas
             source "$CONFIG_FILE"
             if [ -d "$STEAM_LIBRARY/steamapps/common/The Sims 4" ]; then
@@ -1095,7 +1147,7 @@ while true; do
             USER_REG="$PREFIX/user.reg"
             ;;
 
-        9)
+        10)
             mostrar_acerca_de
             ;;
 
