@@ -23,6 +23,9 @@ bash <(curl -sSL https://tinyurl.com/2y3tbsq9)
 
 ### ✨ Funciones Principales (v2.3)
 
+* 🚀 **Auto-Actualizador Inteligente & Accesos Directos Persistentes:**
+  * Al iniciar, el gestor consulta automáticamente si hay una nueva versión en GitHub (sin demoras ni bloqueos offline). Si existe, te ofrece actualizarse con 1 tecla (`S`), descargando, validando sintaxis (`bash -n`) y reiniciando en el acto.
+  * La opción de crear acceso directo instala permanentemente el script en `~/.local/share/fix-sims-4/`, garantizando que tu acceso directo en el Escritorio o Menú de Aplicaciones **siempre funcione y se mantenga actualizado**, incluso si borras el script descargado originalmente.
 * ⚡ **Optimización Gráfica, Hardware & DXVK (Anti-Stuttering)**:
   * **Detección Directa de Hardware:** Lee CPU, GPU (AMD Radeon, NVIDIA, Intel) y RAM directamente desde el kernel de Linux.
   * **Perfil DXVK Ultra-Rendimiento (`dxvk.conf`):** Genera una configuración optimizada en `Game/Bin` activando `GraphicsPipelineLibrary` (GPL), compilación asíncrona de shaders multihilo (`numCompilerThreads`) y presupuesto de memoria VRAM adaptado para erradicar los tirones y congelamientos al viajar o construir.
@@ -116,6 +119,8 @@ funcsave fixsims
 ### 📜 Changelog / Historial de Versiones
 
 #### 🚀 Versión 2.3 (Actual)
+* **🚀 Auto-Actualizador Nativo:** El script comprueba automáticamente si hay nuevas actualizaciones en GitHub al iniciar y se auto-actualiza en el acto tras confirmar con una tecla.
+* **📌 Accesos Directos Persistentes:** Al crear el lanzador `.desktop`, el script se copia de forma segura e independiente en `~/.local/share/fix-sims-4/`, de modo que el acceso directo nunca se rompe y siempre recibe actualizaciones.
 * **⚡ Optimización Gráfica, GPU & DXVK Anti-Stutter:**
   * Detección dinámica de procesador, núcleos, GPU física y RAM del sistema.
   * Generación automática de `dxvk.conf` con `GraphicsPipelineLibrary` y shaders asíncronos para eliminar micro-congelamientos.

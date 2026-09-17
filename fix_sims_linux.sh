@@ -1,16 +1,20 @@
 #!/usr/bin/env bash
 
 # ==============================================================================
-#   💎 Fix Sims 4 Linux (Edición Comunitaria) v2.1
+#   💎 Fix Sims 4 Linux (Edición Comunitaria) v2.3
 #   Soporta Steam, Steam Deck, Lutris, Bottles, Heroic & Wine
 #   Compatible con nuevas versiones de EA App
 #   Desarrollado por Jeff Cortez (github.com/JeffCortez23)
 # ==============================================================================
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+SCRIPT_FILE="$(realpath "${BASH_SOURCE[0]}" 2>/dev/null || echo "$0")"
 CONFIG_FILE="$HOME/.config/sims4_gestor.conf"
 UNLOCKER_STORE="$HOME/.local/share/sims4_unlocker"
 ICON_PATH="$HOME/.local/share/icons/fix-sims-4.svg"
+APP_INSTALL_DIR="$HOME/.local/share/fix-sims-4"
+INSTALLED_SCRIPT="$APP_INSTALL_DIR/fix_sims_linux.sh"
+RAW_URL="https://raw.githubusercontent.com/JeffCortez23/Fix_Sims_4_Linux/main/fix_sims_linux.sh"
 VERSION="2.3"
 
 # --- UTILIDADES DE CENTRADO Y ESTILO TUI ---
@@ -32,6 +36,57 @@ leer_teclado() {
         read -r "$@" < /dev/tty
     else
         read -r "$@"
+    fi
+}
+
+# --- COMPROBACIÓN Y AUTO-ACTUALIZACIÓN DESDE GITHUB ---
+comprobar_actualizacion_auto() {
+    command -v curl &>/dev/null || return 0
+    local remote_ver
+    remote_ver=$(curl -sSL --max-time 2 "$RAW_URL" 2>/dev/null | grep -m1 '^VERSION=' | cut -d'"' -f2)
+    [ -z "$remote_ver" ] && return 0
+
+    local menor
+    menor=$(printf '%s\n%s\n' "$VERSION" "$remote_ver" | sort -V | head -n1)
+
+    if [ "$menor" = "$VERSION" ] && [ "$VERSION" != "$remote_ver" ]; then
+        local P
+        P=$(obtener_padding)
+        echo -e "\n${P}\e[1;36m╭──────────────────────────────────────────────────────────────╮\e[0m"
+        echo -e "${P}\e[1;36m│\e[0m      \e[1;33m✨ ¡NUEVA ACTUALIZACIÓN DISPONIBLE EN GITHUB!\e[0m           \e[1;36m│\e[0m"
+        echo -e "${P}\e[1;36m│\e[0m                  \e[1;32mv$VERSION ➔ v$remote_ver\e[0m                    \e[1;36m│\e[0m"
+        echo -e "${P}\e[1;36m╰──────────────────────────────────────────────────────────────╯\e[0m\n"
+        echo -ne "${P}¿Deseas actualizar el gestor automáticamente ahora? (S/n): "
+        local resp_up
+        leer_teclado resp_up
+        if [[ ! "$resp_up" =~ ^[Nn]$ ]]; then
+            echo -e "\n${P}\e[1;34mDescargando e instalando actualización v$remote_ver...\e[0m"
+            local tmp_up
+            tmp_up=$(mktemp)
+            if curl -sSL --max-time 15 "$RAW_URL" -o "$tmp_up" 2>/dev/null && bash -n "$tmp_up" 2>/dev/null; then
+                local dest=""
+                if [ -f "$SCRIPT_FILE" ] && [ -w "$SCRIPT_FILE" ]; then
+                    dest="$SCRIPT_FILE"
+                elif [ -f "$INSTALLED_SCRIPT" ] && [ -w "$INSTALLED_SCRIPT" ]; then
+                    dest="$INSTALLED_SCRIPT"
+                else
+                    mkdir -p "$APP_INSTALL_DIR"
+                    dest="$INSTALLED_SCRIPT"
+                fi
+
+                cp "$tmp_up" "$dest"
+                chmod +x "$dest"
+                rm -f "$tmp_up"
+                echo -e "${P}\e[1;32m✔ ¡Gestor actualizado con éxito a v$remote_ver!\e[0m"
+                echo -e "${P}Reiniciando en 1 segundo..."
+                sleep 1
+                exec bash "$dest" "$@"
+            else
+                rm -f "$tmp_up"
+                echo -e "${P}\e[1;31mError al descargar la actualización. Continuando con versión actual...\e[0m"
+                sleep 1
+            fi
+        fi
     fi
 }
 
@@ -1001,14 +1056,25 @@ crear_acceso_directo() {
 </svg>
 EOF_SVG
 
-    DESKTOP_ENTRY="$HOME/.local/share/applications/fix-sims-4.desktop"
+    # 1. Asegurar copia permanente en ~/.local/share/fix-sims-4/
+    mkdir -p "$APP_INSTALL_DIR"
     mkdir -p "$HOME/.local/share/applications"
+
+    if [ -f "$SCRIPT_FILE" ]; then
+        cp "$SCRIPT_FILE" "$INSTALLED_SCRIPT" 2>/dev/null || true
+    fi
+    if [ ! -f "$INSTALLED_SCRIPT" ]; then
+        curl -sSL "$RAW_URL" -o "$INSTALLED_SCRIPT" 2>/dev/null || true
+    fi
+    chmod +x "$INSTALLED_SCRIPT" 2>/dev/null || true
+
+    DESKTOP_ENTRY="$HOME/.local/share/applications/fix-sims-4.desktop"
 
     cat <<EOF_DESK > "$DESKTOP_ENTRY"
 [Desktop Entry]
 Name=Fix Sims 4 Linux
-Comment=Gestor y Activador de DLCs para Los Sims 4 en Linux
-Exec=bash -c 'bash "$SCRIPT_DIR/fix_sims_linux.sh"'
+Comment=Gestor, Optimizador y Activador de DLCs para Los Sims 4 en Linux
+Exec=bash -c 'bash "$INSTALLED_SCRIPT"'
 Icon=$ICON_PATH
 Terminal=true
 Type=Application
@@ -1043,7 +1109,9 @@ mostrar_acerca_de() {
     echo -e "${P}  \e[1;37m• Compatibilidad:\e[0m \e[1;35mSteam, Steam Deck, Lutris, Bottles, Heroic, Wine\e[0m"
     echo -e "\n${P}\e[1;36m────────────────────────────────────────────────────────────────\e[0m"
     echo -e "${P}\e[1;33m📜 HISTORIAL DE CAMBIOS (CHANGELOG):\e[0m\n"
-    echo -e "${P}  \e[1;32m[v2.3] - Optimización Gráfica, DXVK Anti-Stutter & Hardware Detection\e[0m"
+    echo -e "${P}  \e[1;32m[v2.3] - Optimización Gráfica, DXVK Anti-Stutter & Auto-Updater\e[0m"
+    echo -e "${P}    • 🚀 \e[1;37mAuto-Update GitHub:\e[0m Detección y auto-reemplazo transparente al iniciar."
+    echo -e "${P}    • 📌 \e[1;37mInstalación Persistente:\e[0m Acceso directo vinculado a ~/.local/share/fix-sims-4/."
     echo -e "${P}    • ⚡ \e[1;37mOptimización DXVK & VRAM:\e[0m Generador dinámico de dxvk.conf según CPU y VRAM."
     echo -e "${P}    • 🛡️  \e[1;37mGraphicsRules Tuning:\e[0m Memoria de texturas y nivel gráfico Uber."
     echo -e "${P}    • 🚀 \e[1;37mCarga Rápida & Anti-Lag:\e[0m Telemetría desactivada y omisión de modal de mods."
@@ -1066,6 +1134,9 @@ mostrar_acerca_de() {
     echo -ne "\n${P}Presiona Enter para volver al menú principal..."
     leer_teclado
 }
+
+# --- COMPROBAR ACTUALIZACIONES AL INICIAR ---
+comprobar_actualizacion_auto "$@"
 
 # --- MENÚ PRINCIPAL ---
 while true; do
