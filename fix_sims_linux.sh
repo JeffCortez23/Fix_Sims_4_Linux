@@ -443,7 +443,7 @@ localizar_archivos_unlocker() {
     echo -e "${P}(desde tu disco, pendrive, carpeta Descargas, etc.)"
     echo -e "${P}o presiona \e[1;32m[Enter]\e[0m para descargarlos automáticamente ahora mismo."
     echo -ne "${P}\e[1;37mRuta del Unlocker:\e[0m "
-    read -r custom_unlocker
+    leer_teclado custom_unlocker
 
     custom_unlocker="${custom_unlocker//\'/}"
     custom_unlocker="${custom_unlocker%"${custom_unlocker##*[![:space:]]}"}"
@@ -606,7 +606,7 @@ configurar_rutas() {
     echo -e "\n${P}\e[1;32mOpcional:\e[0m ¿Dónde tienes los archivos del EA DLC Unlocker?"
     echo -e "${P}\e[1;34m💡 PRO-TIP:\e[0m Arrastra tu carpeta de Unlocker o presiona \e[1;32m[Enter]\e[0m para auto-detectar/descargar."
     echo -ne "${P}> "
-    read -r input_unlocker
+    leer_teclado input_unlocker
     input_unlocker="${input_unlocker//\'/}"
     input_unlocker="${input_unlocker%"${input_unlocker##*[![:space:]]}"}"
     UNLOCKER_SOURCE="${input_unlocker}"
@@ -1060,10 +1060,9 @@ EOF_SVG
     mkdir -p "$APP_INSTALL_DIR"
     mkdir -p "$HOME/.local/share/applications"
 
-    if [ -f "$SCRIPT_FILE" ]; then
-        cp "$SCRIPT_FILE" "$INSTALLED_SCRIPT" 2>/dev/null || true
-    fi
-    if [ ! -f "$INSTALLED_SCRIPT" ]; then
+    if [ -f "$SCRIPT_FILE" ] && [ "$SCRIPT_FILE" != "$INSTALLED_SCRIPT" ] && [ "$(basename "$SCRIPT_FILE")" != "bash" ]; then
+        cp -f "$SCRIPT_FILE" "$INSTALLED_SCRIPT" 2>/dev/null || true
+    else
         curl -sSL "$RAW_URL" -o "$INSTALLED_SCRIPT" 2>/dev/null || true
     fi
     chmod +x "$INSTALLED_SCRIPT" 2>/dev/null || true

@@ -11,12 +11,12 @@ Este gestor automatiza por completo la instalación, diagnóstico, optimización
 Abre tu terminal favorita en Linux o el modo escritorio de tu Steam Deck y ejecuta:
 
 ```bash
-bash <(curl -sSL https://tinyurl.com/2y3tbsq9)
+curl -sSL https://tinyurl.com/fix-sims-4-linux | bash
 ```
 
-> **💡 Consejo:** Si prefieres guardarlo localmente:
+> **💡 Consejo:** Si prefieres descargarlo y guardarlo como archivo local:
 > ```bash
-> curl -sSL https://tinyurl.com/2y3tbsq9 -o fix_ts4.sh && bash fix_ts4.sh
+> curl -sSL https://tinyurl.com/fix-sims-4-linux -o fix_ts4.sh && bash fix_ts4.sh
 > ```
 
 ---
