@@ -21,7 +21,18 @@ obtener_padding() {
     cols=$(tput cols 2>/dev/null || echo 80)
     [ "$cols" -lt "$WIDTH" ] && cols="$WIDTH"
     local pad=$(( (cols - WIDTH) / 2 ))
-    printf '%*s' "$pad" ''
+    printf "%*s" "$pad" ""
+}
+
+# --- LECTURA ROBUSTA DE TECLADO (SOPORTE PARA PIPE / DEV / TTY) ---
+leer_teclado() {
+    if [ -t 0 ]; then
+        read -r "$@"
+    elif [ -e /dev/tty ]; then
+        read -r "$@" < /dev/tty
+    else
+        read -r "$@"
+    fi
 }
 
 # Lista de ubicaciones comunes de Steam
@@ -258,7 +269,7 @@ except Exception as e:
         echo -e "\n${P}\e[33mSi prefieres descargarlo de Telegram: https://t.me/c/3910223807/11\e[0m"
     fi
     echo -ne "\n${P}Presiona Enter para continuar..."
-    read -r
+    leer_teclado
 }
 
 # --- BÚSQUEDA INTELIGENTE Y FLEXIBLE DE ARCHIVOS DEL UNLOCKER ---
@@ -457,7 +468,7 @@ configurar_rutas() {
         echo -e "${P}  \e[1;33m$(( ${#DETECTED_ENTORNOS_NOMBRES[@]} + 1 ))\e[0m) Introducir rutas manualmente"
         
         echo -ne "\n${P}\e[1;37mElige una opción (1-$(( ${#DETECTED_ENTORNOS_NOMBRES[@]} + 1 ))):\e[0m "
-        read -r opcion_env
+        leer_teclado opcion_env
         
         if [ "$opcion_env" -ge 1 ] && [ "$opcion_env" -le "${#DETECTED_ENTORNOS_NOMBRES[@]}" ] 2>/dev/null; then
             STEAM_LIBRARY="${DETECTED_ENTORNOS_LIBS[$((opcion_env-1))]}"
@@ -468,7 +479,7 @@ configurar_rutas() {
     if [ -z "$STEAM_LIBRARY" ]; then
         echo -e "\n${P}\e[1;34m💡 PRO-TIP:\e[0m Arrastra la carpeta donde instalaste tu Biblioteca / Juego"
         echo -ne "${P}Ruta de la biblioteca: "
-        read -r input_lib
+        leer_teclado input_lib
         STEAM_LIBRARY="${input_lib//\'/}"
         STEAM_LIBRARY="${STEAM_LIBRARY%"${STEAM_LIBRARY##*[![:space:]]}"}"
     fi
@@ -480,7 +491,7 @@ configurar_rutas() {
     echo -e "\n${P}\e[1;32mExcelente.\e[0m Ahora necesitamos la ruta donde guardas tus DLCs."
     echo -e "${P}\e[1;34m💡 PRO-TIP:\e[0m Arrastra la carpeta o archivo (.zip/.rar/.7z) de tus DLCs."
     echo -ne "${P}> "
-    read -r input_dlc
+    leer_teclado input_dlc
     
     input_dlc="${input_dlc//\'/}"
     input_dlc="${input_dlc%"${input_dlc##*[![:space:]]}"}"
@@ -621,7 +632,7 @@ abrir_carpeta_mods_ts4() {
     fi
 
     echo -ne "\n${P}Presiona Enter para volver al menú principal..."
-    read -r
+    leer_teclado
 }
 
 # --- INSPECTOR Y DIAGNÓSTICO DE DLCS ---
@@ -750,7 +761,7 @@ diagnosticar_dlcs() {
     echo -e "${P}  • Faltantes por instalar: \e[1;31m$total_faltantes packs\e[0m"
     echo -e "${P}\e[1;36m────────────────────────────────────────────────────────────────\e[0m"
     echo -ne "\n${P}Presiona Enter para volver al menú..."
-    read -r
+    leer_teclado
 }
 
 # --- LIMPIADOR DE CACHÉ DEL JUEGO ---
@@ -782,7 +793,7 @@ limpiar_cache_juego() {
         echo -e "\n${P}\e[31mNo se encontró la carpeta de usuario de Los Sims 4.\e[0m"
         echo -e "${P}Asegúrate de haber abierto el juego al menos una vez."
         echo -ne "\n${P}Presiona Enter para continuar..."
-        read -r
+        leer_teclado
         return
     fi
 
@@ -804,7 +815,7 @@ limpiar_cache_juego() {
 
     echo -e "\n${P}\e[1;32m✔ ¡Caché limpiada con éxito! Esto previene cargas infinitas y errores.\e[0m"
     echo -ne "\n${P}Presiona Enter para continuar..."
-    read -r
+    leer_teclado
 }
 
 # --- CREADOR DE ACCESO DIRECTO (.DESKTOP) ---
@@ -865,7 +876,7 @@ EOF_DESK
 
     echo -e "${P}\e[1;32m✔ Acceso directo creado en tu menú de aplicaciones y en el Escritorio.\e[0m"
     echo -ne "\n${P}Presiona Enter para continuar..."
-    read -r
+    leer_teclado
 }
 
 # --- SECCIÓN ACERCA DE & CHANGELOG ---
@@ -901,7 +912,7 @@ mostrar_acerca_de() {
     echo -e "${P}    • Instalación básica y asesino de procesos colgados."
     echo -e "\n${P}\e[1;36m────────────────────────────────────────────────────────────────\e[0m"
     echo -ne "\n${P}Presiona Enter para volver al menú principal..."
-    read -r
+    leer_teclado
 }
 
 # --- MENÚ PRINCIPAL ---
@@ -928,9 +939,17 @@ while true; do
     echo ""
     echo -e "${P}\e[1;36m────────────────────────────────────────────────────────────────\e[0m"
     echo -ne "${P}\e[1;33m👉 Elige una opción (0-10):\e[0m "
-    read -r opcion
+    leer_teclado opcion
+
+    if [ -z "$opcion" ] && [ ! -t 0 ] && [ ! -e /dev/tty ]; then
+        echo -e "\n${P}\e[31mNo se detectó entrada interactiva. Saliendo...\e[0m"
+        exit 1
+    fi
 
     case $opcion in
+        "")
+            continue
+            ;;
         1)
             echo -e "\n${P}\e[1;33m[Iniciando instalación / organización inteligente de DLCs...]\e[0m"
             mkdir -p "$SIMS_DIR"
@@ -996,7 +1015,7 @@ while true; do
                 if ! command -v 7z &> /dev/null; then
                     echo -e "\n${P}\e[31m¡Error! No tienes '7z' instalado en tu sistema.\e[0m"
                     echo -ne "\n${P}Presiona Enter para continuar..."
-                    read -r
+                    leer_teclado
                     continue
                 fi
                 echo -e "${P}Modo Archivo único detectado. Descomprimiendo en: \e[36m$SIMS_DIR\e[0m\n"
@@ -1013,7 +1032,7 @@ while true; do
             COUNT=$(ls -d "$SIMS_DIR"/[EGDFS]* 2>/dev/null | grep -E '/(EP|GP|SP|FP)[0-9]+' | wc -l)
             echo -e "${P}\e[1;32mTotal de carpetas de DLCs listas en el juego: $COUNT\e[0m"
             echo -ne "\n${P}Presiona Enter para continuar..."
-            read -r
+            leer_teclado
             ;;
             
         2)
@@ -1022,7 +1041,7 @@ while true; do
             if ! localizar_archivos_unlocker; then
                 echo -e "\n${P}\e[31m¡Error! No se pudieron obtener los archivos del Unlocker.\e[0m"
                 echo -ne "\n${P}Presiona Enter para continuar..."
-                read -r
+                leer_teclado
                 continue
             fi
 
@@ -1032,7 +1051,7 @@ while true; do
                 echo -e "\n${P}\e[31m¡Error! No se encontró el prefijo de Wine/Proton en: $PREFIX\e[0m"
                 echo -e "${P}Asegúrate de haber iniciado el juego al menos una vez."
                 echo -ne "\n${P}Presiona Enter para continuar..."
-                read -r
+                leer_teclado
                 continue
             fi
 
@@ -1088,7 +1107,7 @@ while true; do
             echo -e "${P}\e[1;36m────────────────────────────────────────────────────────────────\e[0m"
             echo -e "${P}Ya puedes iniciar Los Sims 4 normalmente."
             echo -ne "\n${P}Presiona Enter para continuar..."
-            read -r
+            leer_teclado
             ;;
 
         3)
@@ -1121,7 +1140,7 @@ while true; do
             pkill -9 -u "$USER" -f "Link2EA.exe" > /dev/null 2>&1
             echo -e "${P}\e[1;32m✔ ¡Limpieza completada! El botón de Steam debería reaccionar.\e[0m"
             echo -ne "\n${P}Presiona Enter para continuar..."
-            read -r
+            leer_teclado
             ;;
             
         9)
