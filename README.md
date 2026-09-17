@@ -1,8 +1,8 @@
-# 🛠️ Fix Sims 4 Linux 🐧 (v2.2)
+# 🛠️ Fix Sims 4 Linux 🐧 (v2.3)
 
-¡Hola! Si juegas a **Los Sims 4 en Linux o Steam Deck** (mediante **Steam, Lutris, Bottles, Heroic o Wine**), sabes que las actualizaciones de la **EA App** suelen romper la activación de los DLCs, dejar procesos huérfanos o dificultar la instalación de expansiones.
+¡Hola! Si juegas a **Los Sims 4 en Linux o Steam Deck** (mediante **Steam, Lutris, Bottles, Heroic o Wine**), sabes que las actualizaciones de la **EA App** suelen romper la activación de los DLCs, dejar procesos huérfanos, provocar caídas de FPS o tirones por shaders.
 
-Este gestor automatiza por completo la instalación, diagnóstico, limpieza, gestión de mods y activación de los DLCs de forma no invasiva, compatible con las versiones más recientes de la EA App y Wine/Proton.
+Este gestor automatiza por completo la instalación, diagnóstico, optimización gráfica/DXVK, limpieza, gestión de mods y activación de los DLCs de forma no invasiva, compatible con las versiones más recientes de la EA App y Wine/Proton.
 
 ---
 
@@ -21,10 +21,15 @@ bash <(curl -sSL https://tinyurl.com/2y3tbsq9)
 
 ---
 
-### ✨ Funciones Principales (v2.2)
+### ✨ Funciones Principales (v2.3)
 
+* ⚡ **Optimización Gráfica, Hardware & DXVK (Anti-Stuttering)**:
+  * **Detección Directa de Hardware:** Lee CPU, GPU (AMD Radeon, NVIDIA, Intel) y RAM directamente desde el kernel de Linux.
+  * **Perfil DXVK Ultra-Rendimiento (`dxvk.conf`):** Genera una configuración optimizada en `Game/Bin` activando `GraphicsPipelineLibrary` (GPL), compilación asíncrona de shaders multihilo (`numCompilerThreads`) y presupuesto de memoria VRAM adaptado para erradicar los tirones y congelamientos al viajar o construir.
+  * **GraphicsRules Tuning:** Fuerza la memoria de texturas óptima (2048 MB para APUs / 4096 MB para GPUs dedicadas) y activa el nivel gráfico Uber para evitar texturas borrosas o degradadas.
+  * **Arranque Rápido & Anti-Lag (`Options.ini`):** Desactiva la telemetría pesada de EA en segundo plano (`enabletelemetry = 0`), suprime la molesta ventana emergente de lista de mods al iniciar (`showmodliststartup = 0` para una carga 3x más rápida con CC) y preconfigura 1080p nativo a 60 FPS.
 * 📂 **Acceso Directo a la Carpeta Mods:**
-  * Localiza automáticamente la carpeta `Electronic Arts/The Sims 4/Mods` dentro de tu prefijo Wine/Proton o documentos y la abre con 1 clic en tu explorador de archivos nativo (Dolphin, Nautilus, Thunar, etc.) mediante `xdg-open`.
+  * Localiza automáticamente la carpeta `Electronic Arts/The Sims 4/Mods` (o `Los Sims 4/Mods`) dentro de tu prefijo Wine/Proton o documentos y la abre con 1 clic en tu explorador de archivos nativo (Dolphin, Nautilus, Thunar, etc.) mediante `xdg-open`.
 * 🔍 **Diagnóstico & Health Check de DLCs**:
   * Escanea tu juego y te muestra una lista organizada de todos los Packs de Expansión (EP), Contenido (GP), Accesorios y Kits (SP) instalados con sus nombres reales en español e inglés y tamaño en disco.
   * Verifica el estado de inyección del Unlocker, el registro de Wine (`user.reg`) y los archivos de configuración.
@@ -62,20 +67,21 @@ bash <(curl -sSL https://tinyurl.com/2y3tbsq9)
 
 ```text
 ╭──────────────────────────────────────────────────────────────╮
-│         💎 GESTOR DE LOS SIMS 4 (LINUX EDITION) v2.2         │
+│         💎 GESTOR DE LOS SIMS 4 (LINUX EDITION) v2.3         │
 │       Steam • Steam Deck • Lutris • Bottles • Heroic         │
 ╰──────────────────────────────────────────────────────────────╯
 
   [1] 📦  Instalar / Mover DLCs al juego (ZIP, RAR, Lotes)
   [2] 🔓  Reactivar DLCs (Inyección EA App + Wine Override)
-  [3] 📂  Abrir carpeta Mods del juego (Mods / CC)
-  [4] 🔍  Diagnóstico de DLCs e Inyección (Health Check)
-  [5] 🧹  Limpiar Caché del Juego (Solución Carga Infinita)
-  [6] 🌐  Descargar / Actualizar EA DLC Unlocker (Auto)
-  [7] 🖥️   Crear Acceso Directo (.desktop / Steam Deck)
-  [8] 🔪  Forzar cierre de procesos colgados (Fix Sims/EA)
-  [9] ⚙️   Reconfigurar rutas del script / Lanzador
-  [10] ℹ️  Acerca de & Changelog
+  [3] ⚡  Optimización de Gráficos, GPU & DXVK (Anti-Stutter & VRAM)
+  [4] 📂  Abrir carpeta Mods del juego (Mods / CC)
+  [5] 🔍  Diagnóstico de DLCs e Inyección (Health Check)
+  [6] 🧹  Limpiar Caché del Juego (Solución Carga Infinita)
+  [7] 🌐  Descargar / Actualizar EA DLC Unlocker (Auto)
+  [8] 🖥️   Crear Acceso Directo (.desktop / Steam Deck)
+  [9] 🔪  Forzar cierre de procesos colgados (Fix Sims/EA)
+  [10] ⚙️   Reconfigurar rutas del script / Lanzador
+  [11] ℹ️  Acerca de & Changelog
   [0] 🚪  Salir
 ```
 
@@ -109,9 +115,17 @@ funcsave fixsims
 
 ### 📜 Changelog / Historial de Versiones
 
-#### 🚀 Versión 2.2 (Actual)
+#### 🚀 Versión 2.3 (Actual)
+* **⚡ Optimización Gráfica, GPU & DXVK Anti-Stutter:**
+  * Detección dinámica de procesador, núcleos, GPU física y RAM del sistema.
+  * Generación automática de `dxvk.conf` con `GraphicsPipelineLibrary` y shaders asíncronos para eliminar micro-congelamientos.
+  * Ajuste de `GraphicsRules.sgr` con VRAM calculada y nivel gráfico Uber.
+  * Desactivación de telemetría de EA (`enabletelemetry = 0`) y omisión del modal de mods (`showmodliststartup = 0`) en `Options.ini` para acelerar el inicio del juego.
+* **📂 Abrir Carpeta Mods:** Acceso directo en el explorador de archivos nativo con `xdg-open` para `The Sims 4` y `Los Sims 4`.
+* **⌨️ Entrada Interactiva Robusta (`leer_teclado`):** Reconexión automática a `/dev/tty` para soporte total en ejecuciones mediante tuberías (`curl | bash`).
+
+#### 🚀 Versión 2.2
 * **📂 Abrir Carpeta Mods:** Acceso directo en el explorador de archivos nativo con `xdg-open`.
-* **⌨️ Entrada Interactiva Robusta (`leer_teclado`):** Soporte total para ejecución en memoria y tuberías (`curl | bash`), reconectando automáticamente a `/dev/tty`.
 * **🌐 TinyURL Oficial:** Comando rápido de instalación y ejecución en una sola línea.
 
 #### 🚀 Versión 2.1

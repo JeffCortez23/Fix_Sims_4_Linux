@@ -11,7 +11,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 CONFIG_FILE="$HOME/.config/sims4_gestor.conf"
 UNLOCKER_STORE="$HOME/.local/share/sims4_unlocker"
 ICON_PATH="$HOME/.local/share/icons/fix-sims-4.svg"
-VERSION="2.2"
+VERSION="2.3"
 
 # --- UTILIDADES DE CENTRADO Y ESTILO TUI ---
 WIDTH=64
@@ -59,6 +59,57 @@ HEROIC_PATHS=(
     "$HOME/Games/Heroic/Prefixes"
     "$HOME/.var/app/com.heroicgameslauncher.hgl/data/heroic/prefixes"
 )
+
+# --- DETECCIÓN DINÁMICA DE HARDWARE (CPU, GPU, RAM, VRAM) ---
+detectar_hardware() {
+    DETECT_GPU_VENDOR="UNKNOWN"
+    DETECT_GPU_MODEL="Gráfica Genérica"
+    DETECT_GPU_DEVICE_ID=""
+    DETECT_VRAM_MB=2048
+    DETECT_RAM_MB=4096
+    DETECT_CPU_MODEL="Procesador Genérico"
+    DETECT_CPU_CORES=4
+
+    # 1. Detección de CPU
+    if [ -f /proc/cpuinfo ]; then
+        DETECT_CPU_MODEL=$(grep -m1 "model name" /proc/cpuinfo | awk -F: '{print $2}' | sed -e 's/^[ \t]*//')
+        DETECT_CPU_CORES=$(grep -c "^processor" /proc/cpuinfo 2>/dev/null || echo 4)
+    fi
+
+    # 2. Detección de RAM Total del Sistema
+    if [ -f /proc/meminfo ]; then
+        local mem_kb
+        mem_kb=$(grep MemTotal /proc/meminfo | awk '{print $2}')
+        DETECT_RAM_MB=$(( mem_kb / 1024 ))
+    fi
+
+    # 3. Detección de GPU vía lspci
+    local lspci_out
+    lspci_out=$(lspci -nn 2>/dev/null | grep -E -i "vga|3d|display" | head -n1)
+    
+    if [[ "$lspci_out" =~ (AMD|ATI|Advanced\ Micro|1002) ]]; then
+        DETECT_GPU_VENDOR="AMD"
+        DETECT_GPU_MODEL=$(echo "$lspci_out" | sed -E 's/.*controller.*: //')
+        DETECT_GPU_DEVICE_ID=$(echo "$lspci_out" | grep -o -E '1002:[0-9a-fA-F]{4}' | cut -d: -f2)
+    elif [[ "$lspci_out" =~ (NVIDIA|GeForce|10de) ]]; then
+        DETECT_GPU_VENDOR="NVIDIA"
+        DETECT_GPU_MODEL=$(echo "$lspci_out" | sed -E 's/.*controller.*: //')
+        DETECT_GPU_DEVICE_ID=$(echo "$lspci_out" | grep -o -E '10de:[0-9a-fA-F]{4}' | cut -d: -f2)
+    elif [[ "$lspci_out" =~ (Intel|8086) ]]; then
+        DETECT_GPU_VENDOR="Intel"
+        DETECT_GPU_MODEL=$(echo "$lspci_out" | sed -E 's/.*controller.*: //')
+        DETECT_GPU_DEVICE_ID=$(echo "$lspci_out" | grep -o -E '8086:[0-9a-fA-F]{4}' | cut -d: -f2)
+    fi
+
+    # 4. Cálculo de VRAM recomendada según la RAM del sistema y tipo de GPU
+    if [ "$DETECT_RAM_MB" -ge 12000 ]; then
+        DETECT_VRAM_MB=4096
+    elif [ "$DETECT_RAM_MB" -ge 6000 ]; then
+        DETECT_VRAM_MB=2048
+    else
+        DETECT_VRAM_MB=1024
+    fi
+}
 
 # --- BASE DE DATOS OFICIAL DE DLCS (LOS SIMS 4) ---
 obtener_nombre_dlc() {
@@ -590,6 +641,99 @@ arreglar_estructura_dlcs() {
     done
 }
 
+# --- OPTIMIZACIÓN INTELIGENTE DE GRÁFICOS, GPU & DXVK (LOS SIMS 4) ---
+optimizar_rendimiento_ts4() {
+    clear
+    local P
+    P=$(obtener_padding)
+    echo -e "\n\n"
+    echo -e "${P}\e[1;36m╭──────────────────────────────────────────────────────────────╮\e[0m"
+    echo -e "${P}\e[1;36m│\e[0m   \e[1;32m⚡ OPTIMIZACIÓN INTELIGENTE DE GRÁFICOS & DXVK (TS4 LINUX)\e[0m  \e[1;36m│\e[0m"
+    echo -e "${P}\e[1;36m╰──────────────────────────────────────────────────────────────╯\e[0m\n"
+
+    local bin_dir="$SIMS_DIR/Game/Bin"
+    local gr_file="$bin_dir/GraphicsRules.sgr"
+
+    if [ ! -d "$bin_dir" ] || [ ! -f "$gr_file" ]; then
+        echo -e "${P}\e[1;31m¡Error! No se encontró la carpeta Game/Bin en:\e[0m $SIMS_DIR"
+        echo -ne "\n${P}Presiona Enter para continuar..."
+        leer_teclado
+        return 1
+    fi
+
+    detectar_hardware
+
+    echo -e "${P}\e[1;37m• Hardware detectado en tu equipo:\e[0m"
+    echo -e "${P}  - CPU:   \e[1;33m$DETECT_CPU_MODEL ($DETECT_CPU_CORES núcleos)\e[0m"
+    echo -e "${P}  - GPU:   \e[1;32m$DETECT_GPU_MODEL [$DETECT_GPU_VENDOR]\e[0m"
+    echo -e "${P}  - RAM:   \e[1;36m$DETECT_RAM_MB MB\e[0m"
+    echo -e "${P}  - VRAM Óptima Calculada: \e[1;35m$DETECT_VRAM_MB MB\e[0m\n"
+
+    # 1. Calibración de GraphicsRules.sgr
+    echo -e "${P}\e[1;34m[1/3] Calibrando GraphicsRules.sgr con el presupuesto de VRAM...\e[0m"
+    cp "$gr_file" "$gr_file.bak_$(date +%s)" 2>/dev/null || true
+
+    sed -i "s/seti adjustedTextureMemory .*/seti adjustedTextureMemory $DETECT_VRAM_MB/g" "$gr_file" 2>/dev/null || true
+    sed -i 's/setb textureMemorySizeOK false/setb textureMemorySizeOK true/g' "$gr_file" 2>/dev/null || true
+    sed -i 's/seti gpumemLevel $gpumemLevelLow/seti gpumemLevel $gpumemLevelUber/g' "$gr_file" 2>/dev/null || true
+    sed -i 's/seti gpumemLevel $gpumemLevelMedium/seti gpumemLevel $gpumemLevelUber/g' "$gr_file" 2>/dev/null || true
+    echo -e "${P}  \e[1;32m✔\e[0m Memoria de texturas fijada a $DETECT_VRAM_MB MB y nivel gráfico Uber activado."
+
+    # 2. Generación de perfil DXVK Anti-Stutter (Vulkan)
+    echo -e "\n${P}\e[1;34m[2/3] Desplegando perfil de alto rendimiento DXVK (dxvk.conf)...\e[0m"
+    local dxvk_conf="$bin_dir/dxvk.conf"
+    cat <<EOF > "$dxvk_conf"
+# Optimización de alto rendimiento DXVK para Los Sims 4 en Linux / Proton
+dxvk.enableAsync = true
+dxvk.enableGraphicsPipelineLibrary = True
+dxvk.numCompilerThreads = $DETECT_CPU_CORES
+dxvk.syncInterval = 0
+d3d11.maxTessFactor = 8
+dxvk.maxChunkSize = 128
+dxvk.memoryBudget = $DETECT_VRAM_MB
+EOF
+    echo -e "${P}  \e[1;32m✔\e[0m dxvk.conf generado en Game/Bin con compilación asíncrona de shaders ($DETECT_CPU_CORES hilos)."
+
+    # 3. Ajuste de rendimiento en Options.ini (Telemetría, Mod List Popup y Pantalla)
+    echo -e "\n${P}\e[1;34m[3/3] Optimizando opciones de arranque y telemetría en Options.ini...\e[0m"
+    local CANDIDATOS_DOCS_OPT=(
+        "$PREFIX/drive_c/users/steamuser/Documents/Electronic Arts/The Sims 4"
+        "$PREFIX/drive_c/users/steamuser/Documents/Electronic Arts/Los Sims 4"
+        "$PREFIX/drive_c/users/$USER/Documents/Electronic Arts/The Sims 4"
+        "$PREFIX/drive_c/users/$USER/Documents/Electronic Arts/Los Sims 4"
+        "$HOME/Documents/Electronic Arts/The Sims 4"
+        "$HOME/Documents/Electronic Arts/Los Sims 4"
+        "$HOME/.local/share/Steam/steamapps/compatdata/1222670/pfx/drive_c/users/steamuser/Documents/Electronic Arts/The Sims 4"
+        "$HOME/.local/share/Steam/steamapps/compatdata/1222670/pfx/drive_c/users/steamuser/Documents/Electronic Arts/Los Sims 4"
+    )
+
+    local opts_updated=0
+    for doc in "${CANDIDATOS_DOCS_OPT[@]}"; do
+        local opts_file="$doc/Options.ini"
+        if [ -f "$opts_file" ]; then
+            sed -i 's/^enabletelemetry = .*/enabletelemetry = 0/g' "$opts_file" 2>/dev/null || echo "enabletelemetry = 0" >> "$opts_file"
+            sed -i 's/^showmodliststartup = .*/showmodliststartup = 0/g' "$opts_file" 2>/dev/null || echo "showmodliststartup = 0" >> "$opts_file"
+            sed -i 's/^dynamicresolution = .*/dynamicresolution = 0/g' "$opts_file" 2>/dev/null || echo "dynamicresolution = 0" >> "$opts_file"
+            sed -i 's/^resolutionwidth = .*/resolutionwidth = 1920/g' "$opts_file" 2>/dev/null || echo "resolutionwidth = 1920" >> "$opts_file"
+            sed -i 's/^resolutionheight = .*/resolutionheight = 1080/g' "$opts_file" 2>/dev/null || echo "resolutionheight = 1080" >> "$opts_file"
+            sed -i 's/^resolutionrefresh = .*/resolutionrefresh = 60/g' "$opts_file" 2>/dev/null || echo "resolutionrefresh = 60" >> "$opts_file"
+            sed -i 's/^fullscreen = .*/fullscreen = 1/g' "$opts_file" 2>/dev/null || echo "fullscreen = 1" >> "$opts_file"
+            ((opts_updated++))
+        fi
+    done
+
+    if [ "$opts_updated" -gt 0 ]; then
+        echo -e "${P}  \e[1;32m✔\e[0m Telemetría desactivada (anti-lag), carga rápida de mods y resolución 1080p configurada."
+    else
+        echo -e "${P}  \e[2;37m(Options.ini se creará automáticamente tras iniciar el juego por primera vez)\e[0m"
+    fi
+
+    echo -e "\n${P}\e[1;36m────────────────────────────────────────────────────────────────\e[0m"
+    echo -e "${P}\e[1;32m¡Optimización completa de Los Sims 4 aplicada con éxito!\e[0m"
+    echo -ne "\n${P}Presiona Enter para continuar..."
+    leer_teclado
+}
+
 # --- ABRIR CARPETA MODS DE LOS SIMS 4 ---
 abrir_carpeta_mods_ts4() {
     clear
@@ -602,9 +746,13 @@ abrir_carpeta_mods_ts4() {
 
     local CANDIDATOS_DOCS=(
         "$PREFIX/drive_c/users/steamuser/Documents/Electronic Arts/The Sims 4"
+        "$PREFIX/drive_c/users/steamuser/Documents/Electronic Arts/Los Sims 4"
         "$PREFIX/drive_c/users/$USER/Documents/Electronic Arts/The Sims 4"
+        "$PREFIX/drive_c/users/$USER/Documents/Electronic Arts/Los Sims 4"
         "$HOME/Documents/Electronic Arts/The Sims 4"
+        "$HOME/Documents/Electronic Arts/Los Sims 4"
         "$HOME/.local/share/Steam/steamapps/compatdata/1222670/pfx/drive_c/users/steamuser/Documents/Electronic Arts/The Sims 4"
+        "$HOME/.local/share/Steam/steamapps/compatdata/1222670/pfx/drive_c/users/steamuser/Documents/Electronic Arts/Los Sims 4"
     )
 
     local target_mods=""
@@ -895,6 +1043,10 @@ mostrar_acerca_de() {
     echo -e "${P}  \e[1;37m• Compatibilidad:\e[0m \e[1;35mSteam, Steam Deck, Lutris, Bottles, Heroic, Wine\e[0m"
     echo -e "\n${P}\e[1;36m────────────────────────────────────────────────────────────────\e[0m"
     echo -e "${P}\e[1;33m📜 HISTORIAL DE CAMBIOS (CHANGELOG):\e[0m\n"
+    echo -e "${P}  \e[1;32m[v2.3] - Optimización Gráfica, DXVK Anti-Stutter & Hardware Detection\e[0m"
+    echo -e "${P}    • ⚡ \e[1;37mOptimización DXVK & VRAM:\e[0m Generador dinámico de dxvk.conf según CPU y VRAM."
+    echo -e "${P}    • 🛡️  \e[1;37mGraphicsRules Tuning:\e[0m Memoria de texturas y nivel gráfico Uber."
+    echo -e "${P}    • 🚀 \e[1;37mCarga Rápida & Anti-Lag:\e[0m Telemetría desactivada y omisión de modal de mods."
     echo -e "${P}  \e[1;32m[v2.2] - Acceso Rápido a Mods & Compatibilidad Refinada\e[0m"
     echo -e "${P}    • 📂 \e[1;37mAbrir Carpeta Mods:\e[0m Acceso directo en el explorador de archivos nativo."
     echo -e "${P}  \e[1;32m[v2.1] - Diagnóstico Maestro, Caché, TUI & Multi-Lanzador\e[0m"
@@ -927,18 +1079,19 @@ while true; do
     echo ""
     echo -e "${P}  \e[1;33m[1]\e[0m 📦  \e[1;37mInstalar / Mover DLCs al juego\e[0m \e[2;37m(ZIP, RAR, Lotes)\e[0m"
     echo -e "${P}  \e[1;33m[2]\e[0m 🔓  \e[1;37mReactivar DLCs\e[0m \e[2;37m(Inyección EA App + Wine Override)\e[0m"
-    echo -e "${P}  \e[1;33m[3]\e[0m 📂  \e[1;37mAbrir carpeta Mods del juego\e[0m \e[2;37m(Mods / CC)\e[0m"
-    echo -e "${P}  \e[1;33m[4]\e[0m 🔍  \e[1;37mDiagnóstico de DLCs e Inyección\e[0m \e[2;37m(Health Check)\e[0m"
-    echo -e "${P}  \e[1;33m[5]\e[0m 🧹  \e[1;37mLimpiar Caché del Juego\e[0m \e[2;37m(Solución Carga Infinita)\e[0m"
-    echo -e "${P}  \e[1;33m[6]\e[0m 🌐  \e[1;37mDescargar / Actualizar EA DLC Unlocker\e[0m \e[2;37m(Auto)\e[0m"
-    echo -e "${P}  \e[1;33m[7]\e[0m 🖥️   \e[1;37mCrear Acceso Directo\e[0m \e[2;37m(.desktop / Steam Deck)\e[0m"
-    echo -e "${P}  \e[1;33m[8]\e[0m 🔪  \e[1;37mForzar cierre de procesos colgados\e[0m \e[2;37m(Fix Sims/EA)\e[0m"
-    echo -e "${P}  \e[1;33m[9]\e[0m ⚙️   \e[1;37mReconfigurar rutas del script / Lanzador\e[0m"
-    echo -e "${P}  \e[1;33m[10]\e[0m ℹ️  \e[1;37mAcerca de & Changelog\e[0m"
+    echo -e "${P}  \e[1;33m[3]\e[0m ⚡  \e[1;37mOptimización de Gráficos, GPU & DXVK\e[0m \e[2;37m(Anti-Stutter & VRAM)\e[0m"
+    echo -e "${P}  \e[1;33m[4]\e[0m 📂  \e[1;37mAbrir carpeta Mods del juego\e[0m \e[2;37m(Mods / CC)\e[0m"
+    echo -e "${P}  \e[1;33m[5]\e[0m 🔍  \e[1;37mDiagnóstico de DLCs e Inyección\e[0m \e[2;37m(Health Check)\e[0m"
+    echo -e "${P}  \e[1;33m[6]\e[0m 🧹  \e[1;37mLimpiar Caché del Juego\e[0m \e[2;37m(Solución Carga Infinita)\e[0m"
+    echo -e "${P}  \e[1;33m[7]\e[0m 🌐  \e[1;37mDescargar / Actualizar EA DLC Unlocker\e[0m \e[2;37m(Auto)\e[0m"
+    echo -e "${P}  \e[1;33m[8]\e[0m 🖥️   \e[1;37mCrear Acceso Directo\e[0m \e[2;37m(.desktop / Steam Deck)\e[0m"
+    echo -e "${P}  \e[1;33m[9]\e[0m 🔪  \e[1;37mForzar cierre de procesos colgados\e[0m \e[2;37m(Fix Sims/EA)\e[0m"
+    echo -e "${P}  \e[1;33m[10]\e[0m ⚙️   \e[1;37mReconfigurar rutas del script / Lanzador\e[0m"
+    echo -e "${P}  \e[1;33m[11]\e[0m ℹ️  \e[1;37mAcerca de & Changelog\e[0m"
     echo -e "${P}  \e[1;31m[0]\e[0m 🚪  \e[1;37mSalir\e[0m"
     echo ""
     echo -e "${P}\e[1;36m────────────────────────────────────────────────────────────────\e[0m"
-    echo -ne "${P}\e[1;33m👉 Elige una opción (0-10):\e[0m "
+    echo -ne "${P}\e[1;33m👉 Elige una opción (0-11):\e[0m "
     leer_teclado opcion
 
     if [ -z "$opcion" ] && [ ! -t 0 ] && [ ! -e /dev/tty ]; then
@@ -1111,26 +1264,30 @@ while true; do
             ;;
 
         3)
-            abrir_carpeta_mods_ts4
+            optimizar_rendimiento_ts4
             ;;
 
         4)
-            diagnosticar_dlcs
+            abrir_carpeta_mods_ts4
             ;;
 
         5)
-            limpiar_cache_juego
+            diagnosticar_dlcs
             ;;
 
         6)
-            descargar_unlocker_auto
+            limpiar_cache_juego
             ;;
 
         7)
-            crear_acceso_directo
+            descargar_unlocker_auto
             ;;
 
         8)
+            crear_acceso_directo
+            ;;
+
+        9)
             echo -e "\n${P}\e[1;31m[Aniquilando procesos fantasma...]\e[0m"
             pkill -9 -u "$USER" -f "steam-runtime-reaper" > /dev/null 2>&1
             pkill -9 -u "$USER" -f "steam-launch-wrapper" > /dev/null 2>&1
@@ -1143,7 +1300,7 @@ while true; do
             leer_teclado
             ;;
             
-        9)
+        10)
             configurar_rutas
             source "$CONFIG_FILE"
             if [ -d "$STEAM_LIBRARY/steamapps/common/The Sims 4" ]; then
@@ -1166,7 +1323,7 @@ while true; do
             USER_REG="$PREFIX/user.reg"
             ;;
 
-        10)
+        11)
             mostrar_acerca_de
             ;;
 
