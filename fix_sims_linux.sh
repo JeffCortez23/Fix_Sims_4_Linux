@@ -17,15 +17,44 @@ INSTALLED_SCRIPT="$APP_INSTALL_DIR/fix_sims_linux.sh"
 RAW_URL="https://raw.githubusercontent.com/JeffCortez23/Fix_Sims_4_Linux/main/fix_sims_linux.sh"
 VERSION="2.3"
 
+# Habilitar actualización dinámica de tamaño de ventana en bash
+shopt -s checkwinsize 2>/dev/null || true
+
 # --- UTILIDADES DE CENTRADO Y ESTILO TUI ---
 WIDTH=64
 
 obtener_padding() {
-    local cols
-    cols=$(tput cols 2>/dev/null || echo 80)
-    [ "$cols" -lt "$WIDTH" ] && cols="$WIDTH"
+    local cols=""
+    # 1. Consultar directamente al dispositivo terminal real (/dev/tty)
+    if [ -e /dev/tty ] && [ -r /dev/tty ]; then
+        cols=$(stty size < /dev/tty 2>/dev/null | awk '{print $2}')
+    fi
+    # 2. Si no dio resultado, consultar en stderr (fd 2, conectado a la terminal)
+    if [ -z "$cols" ] || [ "$cols" -le 0 ] 2>/dev/null; then
+        cols=$(stty size <&2 2>/dev/null | awk '{print $2}')
+    fi
+    # 3. Intentar tput con /dev/tty
+    if [ -z "$cols" ] || [ "$cols" -le 0 ] 2>/dev/null; then
+        if [ -e /dev/tty ] && [ -r /dev/tty ]; then
+            cols=$(tput cols < /dev/tty 2>/dev/null)
+        fi
+    fi
+    # 4. Intentar tput estándar
+    if [ -z "$cols" ] || [ "$cols" -le 0 ] 2>/dev/null; then
+        cols=$(tput cols 2>/dev/null)
+    fi
+    # 5. Variable de entorno COLUMNS
+    if [ -z "$cols" ] || [ "$cols" -le 0 ] 2>/dev/null; then
+        cols="${COLUMNS:-80}"
+    fi
+
+    # Asegurar que cols sea un número entero válido y no menor a WIDTH
+    if ! [[ "$cols" =~ ^[0-9]+$ ]] || [ "$cols" -lt "$WIDTH" ]; then
+        cols="$WIDTH"
+    fi
+
     local pad=$(( (cols - WIDTH) / 2 ))
-    printf "%*s" "$pad" ""
+    printf '%*s' "$pad" ''
 }
 
 # --- LECTURA ROBUSTA DE TECLADO (SOPORTE PARA PIPE / DEV / TTY) ---
