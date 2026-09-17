@@ -1,13 +1,30 @@
-# 🛠️ Fix Sims 4 Linux 🐧 (v2.1)
+# 🛠️ Fix Sims 4 Linux 🐧 (v2.2)
 
 ¡Hola! Si juegas a **Los Sims 4 en Linux o Steam Deck** (mediante **Steam, Lutris, Bottles, Heroic o Wine**), sabes que las actualizaciones de la **EA App** suelen romper la activación de los DLCs, dejar procesos huérfanos o dificultar la instalación de expansiones.
 
-Este gestor automatiza por completo la instalación, diagnóstico, limpieza y activación de los DLCs de forma no invasiva, compatible con las versiones más recientes de la EA App y Wine/Proton.
+Este gestor automatiza por completo la instalación, diagnóstico, limpieza, gestión de mods y activación de los DLCs de forma no invasiva, compatible con las versiones más recientes de la EA App y Wine/Proton.
 
 ---
 
-### ✨ Funciones Principales (v2.1)
+## 🚀 Instalación y Uso Rápido (1 solo comando)
 
+Abre tu terminal favorita en Linux o el modo escritorio de tu Steam Deck y ejecuta:
+
+```bash
+bash <(curl -sSL https://tinyurl.com/2y3tbsq9)
+```
+
+> **💡 Consejo:** Si prefieres guardarlo localmente:
+> ```bash
+> curl -sSL https://tinyurl.com/2y3tbsq9 -o fix_ts4.sh && bash fix_ts4.sh
+> ```
+
+---
+
+### ✨ Funciones Principales (v2.2)
+
+* 📂 **Acceso Directo a la Carpeta Mods:**
+  * Localiza automáticamente la carpeta `Electronic Arts/The Sims 4/Mods` dentro de tu prefijo Wine/Proton o documentos y la abre con 1 clic en tu explorador de archivos nativo (Dolphin, Nautilus, Thunar, etc.) mediante `xdg-open`.
 * 🔍 **Diagnóstico & Health Check de DLCs**:
   * Escanea tu juego y te muestra una lista organizada de todos los Packs de Expansión (EP), Contenido (GP), Accesorios y Kits (SP) instalados con sus nombres reales en español e inglés y tamaño en disco.
   * Verifica el estado de inyección del Unlocker, el registro de Wine (`user.reg`) y los archivos de configuración.
@@ -19,7 +36,7 @@ Este gestor automatiza por completo la instalación, diagnóstico, limpieza y ac
   * Genera automáticamente un lanzador con icono temático de Plumbob verde en tu menú de aplicaciones y en el Escritorio (ideal para Steam Deck y modo escritorio).
 * 📦 **Instalador de DLCs Individual y por Lotes (Batch)**:
   * Soporta archivos `.zip`, `.rar`, `.7z` individuales.
-  * Soporta **carpetas con múltiples archivos comprimidos** (ej. descargas por partes de Telegram o navegadores), descomprimiendo y organizando cada paquete automáticamente.
+  * Soporta **carpetas con múltiples archivos comprimidos** (ej. descargas por partes de Telegram o navegadores), descomprimiendo y organizando cada paquete automáticamente con indicador de progreso interactivo.
   * Aplanador inteligente: saca automáticamente las carpetas anidadas (`all in one/`, `The Sims 4/`, `DLCs/`) para colocarlas en la raíz del juego.
 * 🔓 **Activación de EA App + Wine DllOverrides**:
   * Inyección dinámica de `version.dll` en todas las subcarpetas versionadas de EA App (`13.xxx/EA Desktop`, `compatibility32/`).
@@ -35,49 +52,31 @@ Este gestor automatiza por completo la instalación, diagnóstico, limpieza y ac
 
 1. **Los Sims 4**: Instalado a través de Steam, Lutris, Bottles, Heroic o Wine.
 2. **Herramienta 7z**:
-   * Arch / Manjaro / CachyOS: `sudo pacman -S p7zip`
+   * Arch / Manjaro / CachyOS / SteamOS: `sudo pacman -S p7zip`
    * Ubuntu / Debian / Mint: `sudo apt install p7zip-full`
    * Fedora: `sudo dnf install p7zip p7zip-plugins`
-3. **Estructura recomendada**: Puedes colocar el script en cualquier lugar o en la carpeta del Unlocker. Si no tienes los archivos del Unlocker, puedes usar la **Opción 5** del script para descargarlos automáticamente:
-
-```text
-📂 EA_DLC_Unlocker/
-├── 📜 fix_sims_linux.sh
-├── 📜 config.ini
-├── 📜 g_LOS SIMS 4.ini
-└── 📂 ea_app/
-    └── ⚙️ version.dll
-```
 
 ---
 
-### 🚀 Uso
-
-1. Abre la terminal en la carpeta del script:
-2. Dale permisos de ejecución:
-   ```bash
-   chmod +x fix_sims_linux.sh
-   ```
-3. Ejecútalo:
-   ```bash
-   ./fix_sims_linux.sh
-   ```
-4. Elige la opción que necesites en el menú interactivo:
+### 🖥️ Menú del Gestor
 
 ```text
-====================================================
-    Gestor de Los Sims 4 (Linux Edition) v2.1       
-====================================================
-1) Instalar / Mover DLCs al juego (ZIP, RAR, Lotes)
-2) Reactivar DLCs (Inyección EA App + Wine Override)
-3) 🔍 Diagnóstico de DLCs e Inyección (Health Check)
-4) 🧹 Limpiar Caché del Juego (Solución Carga Infinita)
-5) 🌐 Descargar / Actualizar EA DLC Unlocker (Auto)
-6) 🖥️ Crear Acceso Directo (.desktop / Steam Deck)
-7) 🔪 Forzar cierre de procesos colgados (Fix Sims/EA)
-8) ⚙️ Reconfigurar rutas del script / Lanzador
-9) Salir
-====================================================
+╭──────────────────────────────────────────────────────────────╮
+│         💎 GESTOR DE LOS SIMS 4 (LINUX EDITION) v2.2         │
+│       Steam • Steam Deck • Lutris • Bottles • Heroic         │
+╰──────────────────────────────────────────────────────────────╯
+
+  [1] 📦  Instalar / Mover DLCs al juego (ZIP, RAR, Lotes)
+  [2] 🔓  Reactivar DLCs (Inyección EA App + Wine Override)
+  [3] 📂  Abrir carpeta Mods del juego (Mods / CC)
+  [4] 🔍  Diagnóstico de DLCs e Inyección (Health Check)
+  [5] 🧹  Limpiar Caché del Juego (Solución Carga Infinita)
+  [6] 🌐  Descargar / Actualizar EA DLC Unlocker (Auto)
+  [7] 🖥️   Crear Acceso Directo (.desktop / Steam Deck)
+  [8] 🔪  Forzar cierre de procesos colgados (Fix Sims/EA)
+  [9] ⚙️   Reconfigurar rutas del script / Lanzador
+  [10] ℹ️  Acerca de & Changelog
+  [0] 🚪  Salir
 ```
 
 ---
@@ -86,7 +85,7 @@ Este gestor automatiza por completo la instalación, diagnóstico, limpieza y ac
 
 Para abrir el gestor desde cualquier parte escribiendo simplemente `fixsims`:
 
-#### 🐧 Para Bash o Zsh (La mayoría de distros)
+#### 🐧 Para Bash o Zsh (La mayoría de distros y Steam Deck)
 1. Abre tu archivo de configuración:
    ```bash
    nano ~/.bashrc   # o nano ~/.zshrc si usas Zsh
@@ -110,7 +109,12 @@ funcsave fixsims
 
 ### 📜 Changelog / Historial de Versiones
 
-#### 🚀 Versión 2.1 (Actual)
+#### 🚀 Versión 2.2 (Actual)
+* **📂 Abrir Carpeta Mods:** Acceso directo en el explorador de archivos nativo con `xdg-open`.
+* **⌨️ Entrada Interactiva Robusta (`leer_teclado`):** Soporte total para ejecución en memoria y tuberías (`curl | bash`), reconectando automáticamente a `/dev/tty`.
+* **🌐 TinyURL Oficial:** Comando rápido de instalación y ejecución en una sola línea.
+
+#### 🚀 Versión 2.1
 * **🔍 Diagnóstico & Health Check de DLCs**: Nuevo inspector detallado que lista expansiones, kits y packs instalados con sus nombres reales y verifica el estado de inyección.
 * **🧹 Limpiador de Caché de Los Sims 4**: Eliminación segura de `localthumbcache.package`, `avatarcache.package` y cachés temporales para resolver problemas de carga infinita y errores de mods.
 * **🌐 Auto-descargador del EA DLC Unlocker**: Descarga e instalación automática de los archivos verificados de Anadius / Jardinera con verificación SHA-256.
