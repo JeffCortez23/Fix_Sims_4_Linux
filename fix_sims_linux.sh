@@ -690,8 +690,9 @@ aplicar_dll_override() {
         return 1
     fi
 
-    if grep -q '"version"="native,builtin"' "$reg_file"; then
-        echo -e "${P}  \e[1;32m✔\e[0m Wine DllOverrides ya registrado (\x27version\x27=\x27native,builtin\x27)"
+    # Comprobar si la sección global o específica ya existe con version=native,builtin
+    if grep -q '^\[Software\\\\Wine\\\\DllOverrides\]' "$reg_file" 2>/dev/null && grep -A 5 '^\[Software\\\\Wine\\\\DllOverrides\]' "$reg_file" 2>/dev/null | grep -q '"version"="native,builtin"'; then
+        echo -e "${P}  \e[1;32m✔\e[0m Wine DllOverrides ya registrado ('version'='native,builtin')"
         return 0
     fi
 
@@ -700,6 +701,15 @@ aplicar_dll_override() {
     cat <<EOF >> "$reg_file"
 
 [Software\\\\Wine\\\\DllOverrides] $timestamp
+"version"="native,builtin"
+
+[Software\\\\Wine\\\\AppDefaults\\\\EADesktop.exe\\\\DllOverrides] $timestamp
+"version"="native,builtin"
+
+[Software\\\\Wine\\\\AppDefaults\\\\EALauncher.exe\\\\DllOverrides] $timestamp
+"version"="native,builtin"
+
+[Software\\\\Wine\\\\AppDefaults\\\\TS4_x64.exe\\\\DllOverrides] $timestamp
 "version"="native,builtin"
 EOF
     echo -e "${P}  \e[1;32m✔\e[0m DllOverride añadido exitosamente a user.reg"
@@ -889,7 +899,7 @@ diagnosticar_dlcs() {
         echo -e "${P}  • Inyección version.dll:     \e[1;31m[❌ NO DETECTADO]\e[0m"
     fi
 
-    if [ -f "$USER_REG" ] && grep -q '"version"="native,builtin"' "$USER_REG"; then
+    if [ -f "$USER_REG" ] && grep -q '^\[Software\\\\Wine\\\\DllOverrides\]' "$USER_REG" 2>/dev/null && grep -A 5 '^\[Software\\\\Wine\\\\DllOverrides\]' "$USER_REG" 2>/dev/null | grep -q '"version"="native,builtin"'; then
         echo -e "${P}  • Wine DllOverrides:         \e[1;32m[✔ ACTIVO ('version'='native,builtin')]\e[0m"
     else
         echo -e "${P}  • Wine DllOverrides:         \e[1;31m[❌ FALTA CONFIGURAR]\e[0m"
